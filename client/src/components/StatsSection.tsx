@@ -50,7 +50,7 @@ export default function StatsSection() {
           </div>
 
           <div className="bg-gradient-to-br from-white to-light-gray rounded-lg p-2 sm:p-3 md:p-4 text-center sm:col-span-2 md:col-span-1 shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100">
-            <div className="text-xl sm:text-2xl md:text-4xl font-bold bg-gradient-to-r from-pokemon-blue to-blue-600 bg-clip-text text-transparent mb-0.5 sm:mb-1 md:mb-2">
+            <div className="text-xl sm:text-2xl md:text-4xl font-bold text-pokemon-blue mb-0.5 sm:mb-1 md:mb-2">
               {/* For this demo, we'll hardcode active users since we don't track them */}
               {Math.floor(Math.random() * 500) + 100}
             </div>
