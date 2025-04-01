@@ -138,7 +138,7 @@ export async function fetchPokemonData(): Promise<InsertPokemon[]> {
         {
           pokedexNumber: 1,
           name: "Bulbasaur",
-          imageUrl: "https://static.wikia.nocookie.net/pokemon/images/1/1d/0001.png/revision/latest",
+          imageUrl: "https://static.wikia.nocookie.net/pokemon/images/1/1d/0001.png",
           types: ["Grass", "Poison"],
           rating: 1500,
           wins: 0,
@@ -147,7 +147,7 @@ export async function fetchPokemonData(): Promise<InsertPokemon[]> {
         {
           pokedexNumber: 4,
           name: "Charmander",
-          imageUrl: "https://static.wikia.nocookie.net/pokemon/images/0/03/0004.png/revision/latest",
+          imageUrl: "https://static.wikia.nocookie.net/pokemon/images/0/03/0004.png",
           types: ["Fire"],
           rating: 1500,
           wins: 0,
@@ -156,7 +156,7 @@ export async function fetchPokemonData(): Promise<InsertPokemon[]> {
         {
           pokedexNumber: 7,
           name: "Squirtle",
-          imageUrl: "https://static.wikia.nocookie.net/pokemon/images/9/95/0007.png/revision/latest",
+          imageUrl: "https://static.wikia.nocookie.net/pokemon/images/9/95/0007.png",
           types: ["Water"],
           rating: 1500,
           wins: 0,
@@ -165,7 +165,7 @@ export async function fetchPokemonData(): Promise<InsertPokemon[]> {
         {
           pokedexNumber: 25,
           name: "Pikachu",
-          imageUrl: "https://static.wikia.nocookie.net/pokemon/images/1/17/0025.png/revision/latest",
+          imageUrl: "https://static.wikia.nocookie.net/pokemon/images/1/17/0025.png",
           types: ["Electric"],
           rating: 1500,
           wins: 0,
