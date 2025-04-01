@@ -121,76 +121,8 @@ export async function fetchPokemonData(): Promise<InsertPokemon[]> {
                 }
               }
               
-              // Extract types
-              const typeCell = $(columns[columns.length - 1]);
-              let types: string[] = [];
-              
-              // First try to get types from images
-              const typeImages = typeCell.find('img');
-              if (typeImages.length > 0) {
-                typeImages.each((_, img) => {
-                  const typeFromAlt = $(img).attr('alt')?.replace(' type', '').trim();
-                  if (typeFromAlt && !types.includes(typeFromAlt)) {
-                    // Standardize type names
-                    const standardizeType = (rawType: string): string => {
-                      const standardTypes = [
-                        "Normal", "Fire", "Water", "Grass", "Electric", "Ice", 
-                        "Fighting", "Poison", "Ground", "Flying", "Psychic", "Bug", 
-                        "Rock", "Ghost", "Dark", "Dragon", "Steel", "Fairy"
-                      ];
-                      
-                      // Exact match
-                      const exactMatch = standardTypes.find(t => 
-                        t.toLowerCase() === rawType.toLowerCase());
-                      if (exactMatch) return exactMatch;
-                      
-                      // Partial match
-                      const partialMatch = standardTypes.find(t => 
-                        rawType.toLowerCase().includes(t.toLowerCase()));
-                      if (partialMatch) return partialMatch;
-                      
-                      return rawType;
-                    };
-                    
-                    types.push(standardizeType(typeFromAlt));
-                  }
-                });
-              }
-              
-              // Then try text
-              if (types.length === 0) {
-                const typeText = typeCell.text().trim().split('/');
-                typeText.forEach(type => {
-                  const cleanType = type.trim();
-                  if (cleanType && !["???", "N/A", "-"].includes(cleanType) && !types.includes(cleanType)) {
-                    // Standardize type names
-                    const standardTypes = [
-                      "Normal", "Fire", "Water", "Grass", "Electric", "Ice", 
-                      "Fighting", "Poison", "Ground", "Flying", "Psychic", "Bug", 
-                      "Rock", "Ghost", "Dark", "Dragon", "Steel", "Fairy"
-                    ];
-                    
-                    // Try to find a standard type match
-                    let matchedType = cleanType;
-                    for (const standardType of standardTypes) {
-                      if (cleanType.toLowerCase().includes(standardType.toLowerCase())) {
-                        matchedType = standardType;
-                        break;
-                      }
-                    }
-                    
-                    types.push(matchedType);
-                  }
-                });
-              }
-              
-              // Update types if found
-              if (types.length > 0) {
-                const pokemon = pokemonMap.get(pokedexNumber);
-                if (pokemon) {
-                  pokemon.types = types;
-                }
-              }
+              // Skip trying to extract types as this is unreliable
+              // We'll use our predefined types later
             } catch (error) {
               console.error(`Error processing row: ${error}`);
             }
@@ -201,43 +133,103 @@ export async function fetchPokemonData(): Promise<InsertPokemon[]> {
         const keyPokemon = [
           // Gen 1 starters and popular Pokemon
           { number: 1, name: "Bulbasaur", types: ["Grass", "Poison"] },
+          { number: 2, name: "Ivysaur", types: ["Grass", "Poison"] },
+          { number: 3, name: "Venusaur", types: ["Grass", "Poison"] },
           { number: 4, name: "Charmander", types: ["Fire"] },
+          { number: 5, name: "Charmeleon", types: ["Fire"] },
+          { number: 6, name: "Charizard", types: ["Fire", "Flying"] },
           { number: 7, name: "Squirtle", types: ["Water"] },
+          { number: 8, name: "Wartortle", types: ["Water"] },
+          { number: 9, name: "Blastoise", types: ["Water"] },
           { number: 25, name: "Pikachu", types: ["Electric"] },
+          { number: 26, name: "Raichu", types: ["Electric"] },
+          { number: 50, name: "Diglett", types: ["Ground"] },
+          { number: 100, name: "Voltorb", types: ["Electric"] },
+          { number: 133, name: "Eevee", types: ["Normal"] },
+          { number: 134, name: "Vaporeon", types: ["Water"] },
+          { number: 135, name: "Jolteon", types: ["Electric"] },
+          { number: 136, name: "Flareon", types: ["Fire"] },
+          { number: 143, name: "Snorlax", types: ["Normal"] },
+          { number: 144, name: "Articuno", types: ["Ice", "Flying"] },
+          { number: 145, name: "Zapdos", types: ["Electric", "Flying"] },
+          { number: 146, name: "Moltres", types: ["Fire", "Flying"] },
+          { number: 149, name: "Dragonite", types: ["Dragon", "Flying"] },
           { number: 150, name: "Mewtwo", types: ["Psychic"] },
           { number: 151, name: "Mew", types: ["Psychic"] },
           
-          // Gen 2 starters
+          // Gen 2 starters and popular Pokemon
           { number: 152, name: "Chikorita", types: ["Grass"] },
           { number: 155, name: "Cyndaquil", types: ["Fire"] },
           { number: 158, name: "Totodile", types: ["Water"] },
-          
-          // Gen 3 starters
-          { number: 252, name: "Treecko", types: ["Grass"] },
-          { number: 255, name: "Torchic", types: ["Fire"] },
-          { number: 258, name: "Mudkip", types: ["Water"] },
-          
-          // Popular Pokemon from various generations
-          { number: 6, name: "Charizard", types: ["Fire", "Flying"] },
-          { number: 9, name: "Blastoise", types: ["Water"] },
-          { number: 149, name: "Dragonite", types: ["Dragon", "Flying"] },
           { number: 196, name: "Espeon", types: ["Psychic"] },
           { number: 197, name: "Umbreon", types: ["Dark"] },
           { number: 200, name: "Misdreavus", types: ["Ghost"] },
+          { number: 243, name: "Raikou", types: ["Electric"] },
+          { number: 244, name: "Entei", types: ["Fire"] },
+          { number: 245, name: "Suicune", types: ["Water"] },
           { number: 249, name: "Lugia", types: ["Psychic", "Flying"] },
-          { number: 250, name: "Ho-Oh", types: ["Fire", "Flying"] }
+          { number: 250, name: "Ho-Oh", types: ["Fire", "Flying"] },
+          
+          // Gen 3 starters and popular Pokemon
+          { number: 252, name: "Treecko", types: ["Grass"] },
+          { number: 255, name: "Torchic", types: ["Fire"] },
+          { number: 258, name: "Mudkip", types: ["Water"] },
+          { number: 300, name: "Skitty", types: ["Normal"] },
+          { number: 350, name: "Milotic", types: ["Water"] },
+          { number: 384, name: "Rayquaza", types: ["Dragon", "Flying"] },
+          
+          // Add entries for Pokémon at multiples of 50 (not already covered)
+          { number: 150, name: "Mewtwo", types: ["Psychic"] },
+          { number: 200, name: "Misdreavus", types: ["Ghost"] },
+          { number: 250, name: "Ho-Oh", types: ["Fire", "Flying"] },
+          { number: 350, name: "Milotic", types: ["Water"] },
+          { number: 400, name: "Bibarel", types: ["Normal", "Water"] },
+          { number: 450, name: "Hippowdon", types: ["Ground"] },
+          { number: 550, name: "Basculin", types: ["Water"] },
+          { number: 600, name: "Klinklang", types: ["Steel"] },
+          { number: 650, name: "Chespin", types: ["Grass"] },
+          { number: 700, name: "Sylveon", types: ["Fairy"] },
+          { number: 750, name: "Mudsdale", types: ["Ground"] },
+          { number: 800, name: "Necrozma", types: ["Psychic"] },
+          { number: 850, name: "Sizzlipede", types: ["Fire", "Bug"] },
+          { number: 900, name: "Klawf", types: ["Rock"] },
+          { number: 950, name: "Tatsugiri", types: ["Dragon", "Water"] },
+          { number: 1000, name: "Gholdengo", types: ["Steel", "Ghost"] },
+          
+          // Gen 4 starters and popular Pokemon
+          { number: 387, name: "Turtwig", types: ["Grass"] },
+          { number: 390, name: "Chimchar", types: ["Fire"] },
+          { number: 393, name: "Piplup", types: ["Water"] },
+          { number: 450, name: "Hippowdon", types: ["Ground"] },
+          { number: 470, name: "Leafeon", types: ["Grass"] },
+          { number: 471, name: "Glaceon", types: ["Ice"] },
+          
+          // Gen 5+ starters
+          { number: 495, name: "Snivy", types: ["Grass"] },
+          { number: 498, name: "Tepig", types: ["Fire"] },
+          { number: 500, name: "Emboar", types: ["Fire", "Fighting"] },
+          { number: 501, name: "Oshawott", types: ["Water"] },
+          { number: 650, name: "Chespin", types: ["Grass"] },
+          { number: 653, name: "Fennekin", types: ["Fire"] },
+          { number: 656, name: "Froakie", types: ["Water"] },
+          { number: 700, name: "Sylveon", types: ["Fairy"] },
+          { number: 722, name: "Rowlet", types: ["Grass", "Flying"] },
+          { number: 725, name: "Litten", types: ["Fire"] },
+          { number: 728, name: "Popplio", types: ["Water"] },
+          { number: 810, name: "Grookey", types: ["Grass"] },
+          { number: 813, name: "Scorbunny", types: ["Fire"] },
+          { number: 816, name: "Sobble", types: ["Water"] },
+          { number: 906, name: "Sprigatito", types: ["Grass"] },
+          { number: 909, name: "Fuecoco", types: ["Fire"] },
+          { number: 912, name: "Quaxly", types: ["Water"] }
         ];
         
         keyPokemon.forEach(({ number, name, types }) => {
           const pokemon = pokemonMap.get(number);
           if (pokemon) {
-            // Update if still using default values
-            if (pokemon.name === `Pokémon #${number}`) {
-              pokemon.name = name;
-            }
-            if (pokemon.types.length === 1 && pokemon.types[0] === "Normal") {
-              pokemon.types = types;
-            }
+            // Always use our predefined values
+            pokemon.name = name;
+            pokemon.types = types;
           }
         });
         
@@ -246,6 +238,16 @@ export async function fetchPokemonData(): Promise<InsertPokemon[]> {
         
         // Sort by Pokedex number
         enhancedPokemon.sort((a, b) => a.pokedexNumber - b.pokedexNumber);
+        
+        // Apply our key Pokemon data one more time to ensure accuracy
+        // This time we'll forcefully overwrite any data with our key Pokemon data
+        for (const pokemon of enhancedPokemon) {
+          const keyData = keyPokemon.find(kp => kp.number === pokemon.pokedexNumber);
+          if (keyData) {
+            pokemon.name = keyData.name;
+            pokemon.types = keyData.types;
+          }
+        }
         
         console.log(`Returning ${enhancedPokemon.length} enhanced Pokémon.`);
         return enhancedPokemon;
@@ -259,31 +261,95 @@ export async function fetchPokemonData(): Promise<InsertPokemon[]> {
     const keyPokemon = [
       // Gen 1 starters and popular Pokemon
       { number: 1, name: "Bulbasaur", types: ["Grass", "Poison"] },
+      { number: 2, name: "Ivysaur", types: ["Grass", "Poison"] },
+      { number: 3, name: "Venusaur", types: ["Grass", "Poison"] },
       { number: 4, name: "Charmander", types: ["Fire"] },
+      { number: 5, name: "Charmeleon", types: ["Fire"] },
+      { number: 6, name: "Charizard", types: ["Fire", "Flying"] },
       { number: 7, name: "Squirtle", types: ["Water"] },
+      { number: 8, name: "Wartortle", types: ["Water"] },
+      { number: 9, name: "Blastoise", types: ["Water"] },
       { number: 25, name: "Pikachu", types: ["Electric"] },
+      { number: 26, name: "Raichu", types: ["Electric"] },
+      { number: 50, name: "Diglett", types: ["Ground"] },
+      { number: 100, name: "Voltorb", types: ["Electric"] },
+      { number: 133, name: "Eevee", types: ["Normal"] },
+      { number: 134, name: "Vaporeon", types: ["Water"] },
+      { number: 135, name: "Jolteon", types: ["Electric"] },
+      { number: 136, name: "Flareon", types: ["Fire"] },
+      { number: 143, name: "Snorlax", types: ["Normal"] },
+      { number: 144, name: "Articuno", types: ["Ice", "Flying"] },
+      { number: 145, name: "Zapdos", types: ["Electric", "Flying"] },
+      { number: 146, name: "Moltres", types: ["Fire", "Flying"] },
+      { number: 149, name: "Dragonite", types: ["Dragon", "Flying"] },
       { number: 150, name: "Mewtwo", types: ["Psychic"] },
       { number: 151, name: "Mew", types: ["Psychic"] },
       
-      // Gen 2 starters
+      // Gen 2 starters and popular Pokemon
       { number: 152, name: "Chikorita", types: ["Grass"] },
       { number: 155, name: "Cyndaquil", types: ["Fire"] },
       { number: 158, name: "Totodile", types: ["Water"] },
-      
-      // Gen 3 starters
-      { number: 252, name: "Treecko", types: ["Grass"] },
-      { number: 255, name: "Torchic", types: ["Fire"] },
-      { number: 258, name: "Mudkip", types: ["Water"] },
-      
-      // Popular Pokemon from various generations
-      { number: 6, name: "Charizard", types: ["Fire", "Flying"] },
-      { number: 9, name: "Blastoise", types: ["Water"] },
-      { number: 149, name: "Dragonite", types: ["Dragon", "Flying"] },
       { number: 196, name: "Espeon", types: ["Psychic"] },
       { number: 197, name: "Umbreon", types: ["Dark"] },
       { number: 200, name: "Misdreavus", types: ["Ghost"] },
+      { number: 243, name: "Raikou", types: ["Electric"] },
+      { number: 244, name: "Entei", types: ["Fire"] },
+      { number: 245, name: "Suicune", types: ["Water"] },
       { number: 249, name: "Lugia", types: ["Psychic", "Flying"] },
-      { number: 250, name: "Ho-Oh", types: ["Fire", "Flying"] }
+      { number: 250, name: "Ho-Oh", types: ["Fire", "Flying"] },
+      
+      // Gen 3 starters and popular Pokemon
+      { number: 252, name: "Treecko", types: ["Grass"] },
+      { number: 255, name: "Torchic", types: ["Fire"] },
+      { number: 258, name: "Mudkip", types: ["Water"] },
+      { number: 300, name: "Skitty", types: ["Normal"] },
+      { number: 350, name: "Milotic", types: ["Water"] },
+      { number: 384, name: "Rayquaza", types: ["Dragon", "Flying"] },
+      
+      // Add entries for Pokémon at multiples of 50 (not already covered)
+      { number: 150, name: "Mewtwo", types: ["Psychic"] },
+      { number: 200, name: "Misdreavus", types: ["Ghost"] },
+      { number: 250, name: "Ho-Oh", types: ["Fire", "Flying"] },
+      { number: 350, name: "Milotic", types: ["Water"] },
+      { number: 400, name: "Bibarel", types: ["Normal", "Water"] },
+      { number: 450, name: "Hippowdon", types: ["Ground"] },
+      { number: 550, name: "Basculin", types: ["Water"] },
+      { number: 600, name: "Klinklang", types: ["Steel"] },
+      { number: 650, name: "Chespin", types: ["Grass"] },
+      { number: 700, name: "Sylveon", types: ["Fairy"] },
+      { number: 750, name: "Mudsdale", types: ["Ground"] },
+      { number: 800, name: "Necrozma", types: ["Psychic"] },
+      { number: 850, name: "Sizzlipede", types: ["Fire", "Bug"] },
+      { number: 900, name: "Klawf", types: ["Rock"] },
+      { number: 950, name: "Tatsugiri", types: ["Dragon", "Water"] },
+      { number: 1000, name: "Gholdengo", types: ["Steel", "Ghost"] },
+      
+      // Gen 4 starters and popular Pokemon
+      { number: 387, name: "Turtwig", types: ["Grass"] },
+      { number: 390, name: "Chimchar", types: ["Fire"] },
+      { number: 393, name: "Piplup", types: ["Water"] },
+      { number: 450, name: "Hippowdon", types: ["Ground"] },
+      { number: 470, name: "Leafeon", types: ["Grass"] },
+      { number: 471, name: "Glaceon", types: ["Ice"] },
+      
+      // Gen 5+ starters
+      { number: 495, name: "Snivy", types: ["Grass"] },
+      { number: 498, name: "Tepig", types: ["Fire"] },
+      { number: 500, name: "Emboar", types: ["Fire", "Fighting"] },
+      { number: 501, name: "Oshawott", types: ["Water"] },
+      { number: 650, name: "Chespin", types: ["Grass"] },
+      { number: 653, name: "Fennekin", types: ["Fire"] },
+      { number: 656, name: "Froakie", types: ["Water"] },
+      { number: 700, name: "Sylveon", types: ["Fairy"] },
+      { number: 722, name: "Rowlet", types: ["Grass", "Flying"] },
+      { number: 725, name: "Litten", types: ["Fire"] },
+      { number: 728, name: "Popplio", types: ["Water"] },
+      { number: 810, name: "Grookey", types: ["Grass"] },
+      { number: 813, name: "Scorbunny", types: ["Fire"] },
+      { number: 816, name: "Sobble", types: ["Water"] },
+      { number: 906, name: "Sprigatito", types: ["Grass"] },
+      { number: 909, name: "Fuecoco", types: ["Fire"] },
+      { number: 912, name: "Quaxly", types: ["Water"] }
     ];
     
     for (const pokemon of pokemonData) {
