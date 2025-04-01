@@ -105,7 +105,7 @@ export default function VotingSection() {
         {matchup ? (
           <>
             {/* Matchup Container */}
-            <div className="flex flex-col md:flex-row gap-4 sm:gap-6 items-center justify-center w-full max-w-4xl mx-auto">
+            <div className="flex flex-row gap-4 sm:gap-6 items-center justify-center w-full max-w-4xl mx-auto">
               {/* Left Pokemon */}
               <div className="w-[45%] max-w-[250px]">
                 <PokemonCard 
@@ -117,9 +117,9 @@ export default function VotingSection() {
               </div>
 
               {/* VS Divider */}
-              <div className="flex flex-col items-center my-1 mx-0 sm:mx-4 sm:my-2">
-                <div className="bg-pokemon-yellow text-dark-gray font-bold text-xl sm:text-2xl w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-md">VS</div>
-                <div className="text-gray-500 text-xs sm:text-sm mt-1 sm:mt-2">Choose One</div>
+              <div className="flex flex-col items-center mx-2">
+                <div className="bg-pokemon-yellow text-dark-gray font-bold text-lg sm:text-2xl w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-md">VS</div>
+                <div className="text-gray-500 text-[10px] sm:text-sm mt-1">Choose One</div>
               </div>
 
               {/* Right Pokemon */}
