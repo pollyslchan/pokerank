@@ -41,7 +41,7 @@ export default function PokemonCard({ pokemon, onVote, isLoading, voteStatus }: 
     <div className="pokemon-card flex-1 bg-light-gray rounded-lg overflow-hidden shadow-md max-w-xs">
       <div className="relative">
         <img 
-          src={pokemon.imageUrl.replace('/revision/latest', '')} 
+          src={pokemon.imageUrl} 
           alt={pokemon.name} 
           className="w-full h-48 object-contain bg-white p-4" 
           onError={(e) => {

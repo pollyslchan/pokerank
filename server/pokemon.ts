@@ -49,22 +49,26 @@ export async function fetchPokemonData(): Promise<InsertPokemon[]> {
           // Get image URL from the second column
           const imageCell = $(columns[1]);
           let imageUrl = '';
-          const imgElement = imageCell.find('img');
+          const imgElement = imageCell.find('img').first();
 
           if (imgElement.length > 0) {
-            // Try to get the best quality image URL
-            imageUrl = imgElement.attr('data-src') || 
-                      imgElement.attr('src') || 
-                      imgElement.attr('data-image-key') || '';
-
-            // Clean up image URL
-            if (imageUrl.includes('/revision/')) {
-              imageUrl = imageUrl.split('/revision/')[0];
-            }
+            // Get the original image URL from the data-src attribute
+            imageUrl = imgElement.attr('data-src') || imgElement.attr('src') || '';
             
-            // Ensure URL is absolute
-            if (imageUrl.startsWith('//')) {
-              imageUrl = 'https:' + imageUrl;
+            // Clean up the URL and ensure it's the original version
+            if (imageUrl) {
+              // Remove any scaling parameters
+              imageUrl = imageUrl.replace(/\/scale-to-width-down\/\d+/, '');
+              // Remove revision info
+              imageUrl = imageUrl.split('/revision/')[0];
+              // Ensure it's HTTPS
+              if (imageUrl.startsWith('//')) {
+                imageUrl = 'https:' + imageUrl;
+              }
+              // Add .png extension if missing
+              if (!imageUrl.endsWith('.png')) {
+                imageUrl += '.png';
+              }
             }
           }
           
