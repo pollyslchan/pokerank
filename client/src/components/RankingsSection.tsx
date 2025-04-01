@@ -28,17 +28,17 @@ export default function RankingsSection() {
         {/* Top Rankings */}
         <div className="flex-1 bg-white rounded-xl shadow-lg p-3 sm:p-4 md:p-6">
           <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6">Top Rankings</h3>
-          
+
           {isLoadingRankings ? (
             <div className="flex justify-center items-center py-8 sm:py-10 md:py-16">
               <div className="loader w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 border-4 border-gray-300 border-t-4 rounded-full"></div>
             </div>
           ) : topRankings && topRankings.length > 0 ? (
             <>
-              <div className="overflow-x-auto -mx-3 sm:-mx-4 md:mx-0">
+              <div className="overflow-x-auto rounded-lg -mx-3 sm:-mx-4 md:mx-0">
                 <table className="w-full text-left table-auto font-roboto text-xs sm:text-sm md:text-base">
-                  <thead>
-                    <tr className="bg-light-gray">
+                  <thead className="bg-gradient-to-r from-pokemon-blue to-blue-600 text-white">
+                    <tr>
                       <th className="px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-tl-lg">#</th>
                       <th className="px-2 sm:px-3 md:px-4 py-1.5 sm:py-2">Pokémon</th>
                       <th className="px-2 sm:px-3 md:px-4 py-1.5 sm:py-2">Rating</th>
@@ -69,7 +69,7 @@ export default function RankingsSection() {
                   </tbody>
                 </table>
               </div>
-              
+
               <div className="mt-4 sm:mt-6 text-center">
                 <Link href="/rankings">
                   <Button className="px-4 sm:px-6 py-1.5 sm:py-2 bg-pokemon-blue hover:bg-blue-700 text-white font-medium rounded-lg transition text-sm sm:text-base">
@@ -84,11 +84,11 @@ export default function RankingsSection() {
             </div>
           )}
         </div>
-        
+
         {/* Recent Votes */}
         <div className="flex-1 bg-white rounded-xl shadow-lg p-3 sm:p-4 md:p-6">
           <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6" id="history">Recent Votes</h3>
-          
+
           {isLoadingVotes ? (
             <div className="flex justify-center items-center py-8 sm:py-10 md:py-16">
               <div className="loader w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 border-4 border-gray-300 border-t-4 rounded-full"></div>

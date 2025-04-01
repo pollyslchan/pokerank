@@ -118,8 +118,8 @@ export default function VotingSection() {
 
               {/* VS Divider */}
               <div className="flex flex-col items-center mx-2">
-                <div className="bg-pokemon-yellow text-dark-gray font-bold text-lg sm:text-2xl w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-md">VS</div>
-                <div className="text-gray-500 text-[10px] sm:text-sm mt-1">Choose One</div>
+                <div className="bg-gradient-to-br from-pokemon-yellow to-yellow-500 text-dark-gray font-bold text-lg sm:text-2xl w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-lg border-2 border-white animate-pulse">VS</div>
+                <div className="text-gray-500 text-[10px] sm:text-sm mt-1 font-medium">Choose One</div>
               </div>
 
               {/* Right Pokemon */}

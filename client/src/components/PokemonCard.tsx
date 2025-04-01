@@ -38,12 +38,12 @@ export default function PokemonCard({ pokemon, onVote, isLoading, voteStatus }: 
   };
 
   return (
-    <div className="pokemon-card flex-1 bg-light-gray rounded-lg overflow-hidden shadow-md w-full max-w-xs flex flex-col">
+    <div className="pokemon-card flex-1 bg-gradient-to-b from-white to-light-gray rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 w-full max-w-xs flex flex-col border border-gray-100">
       <div className="relative">
         <img 
           src={pokemon.imageUrl} 
           alt={pokemon.name} 
-          className="w-full h-32 sm:h-40 md:h-48 object-contain bg-white p-2 sm:p-4" 
+          className="w-full h-32 sm:h-40 md:h-48 object-contain bg-white p-2 sm:p-4 transition-transform duration-300 hover:scale-110" 
           onError={(e) => {
             // Fallback if image fails to load
             (e.target as HTMLImageElement).src = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1200px-Pok%C3%A9_Ball_icon.svg.png";
