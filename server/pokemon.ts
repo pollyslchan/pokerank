@@ -131,7 +131,28 @@ export async function fetchPokemonData(): Promise<InsertPokemon[]> {
                 typeImages.each((_, img) => {
                   const typeFromAlt = $(img).attr('alt')?.replace(' type', '').trim();
                   if (typeFromAlt && !types.includes(typeFromAlt)) {
-                    types.push(typeFromAlt);
+                    // Standardize type names
+                    const standardizeType = (rawType: string): string => {
+                      const standardTypes = [
+                        "Normal", "Fire", "Water", "Grass", "Electric", "Ice", 
+                        "Fighting", "Poison", "Ground", "Flying", "Psychic", "Bug", 
+                        "Rock", "Ghost", "Dark", "Dragon", "Steel", "Fairy"
+                      ];
+                      
+                      // Exact match
+                      const exactMatch = standardTypes.find(t => 
+                        t.toLowerCase() === rawType.toLowerCase());
+                      if (exactMatch) return exactMatch;
+                      
+                      // Partial match
+                      const partialMatch = standardTypes.find(t => 
+                        rawType.toLowerCase().includes(t.toLowerCase()));
+                      if (partialMatch) return partialMatch;
+                      
+                      return rawType;
+                    };
+                    
+                    types.push(standardizeType(typeFromAlt));
                   }
                 });
               }
@@ -142,7 +163,23 @@ export async function fetchPokemonData(): Promise<InsertPokemon[]> {
                 typeText.forEach(type => {
                   const cleanType = type.trim();
                   if (cleanType && !["???", "N/A", "-"].includes(cleanType) && !types.includes(cleanType)) {
-                    types.push(cleanType);
+                    // Standardize type names
+                    const standardTypes = [
+                      "Normal", "Fire", "Water", "Grass", "Electric", "Ice", 
+                      "Fighting", "Poison", "Ground", "Flying", "Psychic", "Bug", 
+                      "Rock", "Ghost", "Dark", "Dragon", "Steel", "Fairy"
+                    ];
+                    
+                    // Try to find a standard type match
+                    let matchedType = cleanType;
+                    for (const standardType of standardTypes) {
+                      if (cleanType.toLowerCase().includes(standardType.toLowerCase())) {
+                        matchedType = standardType;
+                        break;
+                      }
+                    }
+                    
+                    types.push(matchedType);
                   }
                 });
               }
@@ -162,11 +199,33 @@ export async function fetchPokemonData(): Promise<InsertPokemon[]> {
         
         // Ensure accurate data for key Pokemon
         const keyPokemon = [
+          // Gen 1 starters and popular Pokemon
           { number: 1, name: "Bulbasaur", types: ["Grass", "Poison"] },
           { number: 4, name: "Charmander", types: ["Fire"] },
           { number: 7, name: "Squirtle", types: ["Water"] },
           { number: 25, name: "Pikachu", types: ["Electric"] },
-          { number: 150, name: "Mewtwo", types: ["Psychic"] }
+          { number: 150, name: "Mewtwo", types: ["Psychic"] },
+          { number: 151, name: "Mew", types: ["Psychic"] },
+          
+          // Gen 2 starters
+          { number: 152, name: "Chikorita", types: ["Grass"] },
+          { number: 155, name: "Cyndaquil", types: ["Fire"] },
+          { number: 158, name: "Totodile", types: ["Water"] },
+          
+          // Gen 3 starters
+          { number: 252, name: "Treecko", types: ["Grass"] },
+          { number: 255, name: "Torchic", types: ["Fire"] },
+          { number: 258, name: "Mudkip", types: ["Water"] },
+          
+          // Popular Pokemon from various generations
+          { number: 6, name: "Charizard", types: ["Fire", "Flying"] },
+          { number: 9, name: "Blastoise", types: ["Water"] },
+          { number: 149, name: "Dragonite", types: ["Dragon", "Flying"] },
+          { number: 196, name: "Espeon", types: ["Psychic"] },
+          { number: 197, name: "Umbreon", types: ["Dark"] },
+          { number: 200, name: "Misdreavus", types: ["Ghost"] },
+          { number: 249, name: "Lugia", types: ["Psychic", "Flying"] },
+          { number: 250, name: "Ho-Oh", types: ["Fire", "Flying"] }
         ];
         
         keyPokemon.forEach(({ number, name, types }) => {
@@ -198,11 +257,33 @@ export async function fetchPokemonData(): Promise<InsertPokemon[]> {
     
     // Ensure key Pokemon have correct data
     const keyPokemon = [
+      // Gen 1 starters and popular Pokemon
       { number: 1, name: "Bulbasaur", types: ["Grass", "Poison"] },
       { number: 4, name: "Charmander", types: ["Fire"] },
       { number: 7, name: "Squirtle", types: ["Water"] },
       { number: 25, name: "Pikachu", types: ["Electric"] },
-      { number: 150, name: "Mewtwo", types: ["Psychic"] }
+      { number: 150, name: "Mewtwo", types: ["Psychic"] },
+      { number: 151, name: "Mew", types: ["Psychic"] },
+      
+      // Gen 2 starters
+      { number: 152, name: "Chikorita", types: ["Grass"] },
+      { number: 155, name: "Cyndaquil", types: ["Fire"] },
+      { number: 158, name: "Totodile", types: ["Water"] },
+      
+      // Gen 3 starters
+      { number: 252, name: "Treecko", types: ["Grass"] },
+      { number: 255, name: "Torchic", types: ["Fire"] },
+      { number: 258, name: "Mudkip", types: ["Water"] },
+      
+      // Popular Pokemon from various generations
+      { number: 6, name: "Charizard", types: ["Fire", "Flying"] },
+      { number: 9, name: "Blastoise", types: ["Water"] },
+      { number: 149, name: "Dragonite", types: ["Dragon", "Flying"] },
+      { number: 196, name: "Espeon", types: ["Psychic"] },
+      { number: 197, name: "Umbreon", types: ["Dark"] },
+      { number: 200, name: "Misdreavus", types: ["Ghost"] },
+      { number: 249, name: "Lugia", types: ["Psychic", "Flying"] },
+      { number: 250, name: "Ho-Oh", types: ["Fire", "Flying"] }
     ];
     
     for (const pokemon of pokemonData) {
