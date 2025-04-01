@@ -77,7 +77,7 @@ export default function FullRankings() {
                     <td className="px-4 py-3">
                       <div className="flex items-center">
                         <img 
-                          src={pokemon.imageUrl} 
+                          src={pokemon.imageUrl.replace('/revision/latest', '')} 
                           alt={pokemon.name} 
                           className="w-10 h-10 mr-3 object-contain"
                           onError={(e) => {

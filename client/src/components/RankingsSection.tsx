@@ -52,7 +52,7 @@ export default function RankingsSection() {
                         <td className="px-4 py-3">
                           <div className="flex items-center">
                             <img 
-                              src={pokemon.imageUrl} 
+                              src={pokemon.imageUrl.replace('/revision/latest', '')} 
                               alt={pokemon.name} 
                               className="w-10 h-10 mr-3 object-contain"
                               onError={(e) => {
@@ -99,7 +99,7 @@ export default function RankingsSection() {
                 <div key={vote.id} className="flex items-center p-3 border-b border-gray-200">
                   <div className="flex-shrink-0 w-12 h-12 mr-3">
                     <img 
-                      src={vote.winner.imageUrl} 
+                      src={vote.winner.imageUrl.replace('/revision/latest', '')} 
                       alt={vote.winner.name} 
                       className="w-full h-full object-contain"
                       onError={(e) => {
