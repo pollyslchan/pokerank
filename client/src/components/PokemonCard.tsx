@@ -77,11 +77,11 @@ export default function PokemonCard({ pokemon, onVote, isLoading, voteStatus }: 
         <Button
           onClick={handleVote}
           disabled={isLoading || voteStatus !== "idle"}
-          className={`vote-button w-full py-2 sm:py-3 md:py-4 font-bold rounded-lg shadow transition ${
+          className={`vote-button w-full py-2 sm:py-3 md:py-4 font-bold rounded-lg shadow-lg transition ${
             voteStatus === "voted" 
               ? "bg-green-500 hover:bg-green-600" 
               : "bg-pokemon-red hover:bg-red-700"
-          } text-xs sm:text-sm md:text-base text-white`}
+          } text-xs sm:text-sm md:text-base text-white border-2 border-transparent hover:border-white`}
         >
           {isLoading ? (
             <>

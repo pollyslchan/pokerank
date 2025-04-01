@@ -72,7 +72,7 @@ export default function RankingsSection() {
 
               <div className="mt-4 sm:mt-6 text-center">
                 <Link href="/rankings">
-                  <Button className="px-4 sm:px-6 py-1.5 sm:py-2 bg-pokemon-blue hover:bg-blue-700 text-white font-medium rounded-lg transition text-sm sm:text-base">
+                  <Button className="px-4 sm:px-6 py-1.5 sm:py-2 bg-pokemon-blue hover:bg-blue-700 text-white font-semibold rounded-lg transition text-sm sm:text-base shadow-lg border-2 border-transparent hover:border-white">
                     View Full Rankings
                   </Button>
                 </Link>

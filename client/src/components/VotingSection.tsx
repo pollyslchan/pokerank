@@ -139,7 +139,7 @@ export default function VotingSection() {
                 onClick={handleSkip}
                 disabled={voteMutation.isPending || isLoadingMatchup}
                 variant="outline"
-                className="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition"
+                className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold rounded-lg transition border-2 border-gray-300 shadow-md"
               >
                 {isLoadingMatchup ? (
                   <>
