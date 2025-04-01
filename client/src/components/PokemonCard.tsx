@@ -38,12 +38,12 @@ export default function PokemonCard({ pokemon, onVote, isLoading, voteStatus }: 
   };
 
   return (
-    <div className="pokemon-card flex-1 bg-light-gray rounded-lg overflow-hidden shadow-md max-w-xs">
+    <div className="pokemon-card flex-1 bg-light-gray rounded-lg overflow-hidden shadow-md max-w-xs w-full flex flex-col">
       <div className="relative">
         <img 
           src={pokemon.imageUrl} 
           alt={pokemon.name} 
-          className="w-full h-48 object-contain bg-white p-4" 
+          className="w-full h-40 sm:h-48 object-contain bg-white p-2 sm:p-4" 
           onError={(e) => {
             // Fallback if image fails to load
             (e.target as HTMLImageElement).src = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1200px-Pok%C3%A9_Ball_icon.svg.png";
@@ -54,21 +54,21 @@ export default function PokemonCard({ pokemon, onVote, isLoading, voteStatus }: 
         </span>
       </div>
       
-      <div className="p-4">
-        <h4 className="text-xl font-bold mb-2 text-center">{pokemon.name}</h4>
+      <div className="p-3 sm:p-4 flex flex-col flex-grow">
+        <h4 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2 text-center">{pokemon.name}</h4>
         
-        <div className="flex justify-center flex-wrap gap-2 mb-4">
+        <div className="flex justify-center flex-wrap gap-1 sm:gap-2 mb-2 sm:mb-3">
           {pokemon.types.map((type, index) => (
             <span 
               key={index} 
-              className={`px-3 py-1 ${typeColors[type] || 'bg-gray-400'} text-white text-xs rounded-full`}
+              className={`px-2 sm:px-3 py-0.5 sm:py-1 ${typeColors[type] || 'bg-gray-400'} text-white text-xs rounded-full`}
             >
               {type}
             </span>
           ))}
         </div>
         
-        <div className="text-center text-sm text-gray-600 mb-4">
+        <div className="text-center text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3 flex-grow">
           <p>Current Rank: <span className="font-semibold">{pokemon.rank || 'N/A'}</span></p>
           <p>Rating: <span className="font-semibold">{pokemon.rating}</span></p>
           <p>Record: <span className="font-semibold">{pokemon.wins}-{pokemon.losses}</span></p>
@@ -77,11 +77,11 @@ export default function PokemonCard({ pokemon, onVote, isLoading, voteStatus }: 
         <Button
           onClick={handleVote}
           disabled={isLoading || voteStatus !== "idle"}
-          className={`vote-button w-full py-6 font-bold rounded-lg shadow transition ${
+          className={`vote-button w-full py-3 sm:py-4 md:py-5 font-bold rounded-lg shadow transition sticky bottom-0 ${
             voteStatus === "voted" 
               ? "bg-green-500 hover:bg-green-600" 
               : "bg-pokemon-red hover:bg-red-700"
-          }`}
+          } text-sm sm:text-base`}
         >
           {isLoading ? (
             <>

@@ -9,33 +9,39 @@ export default function Header() {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  // Create navigation items to avoid duplication
+  const navItems = [
+    { href: "/#voting", label: "Vote" },
+    { href: "/#rankings", label: "Rankings" },
+    { href: "/#history", label: "History" },
+    { href: "/#about", label: "About" }
+  ];
+
   return (
-    <header className="bg-pokemon-red text-white shadow-md">
+    <header className="bg-pokemon-red text-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <div className="flex items-center">
           <img 
             src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1200px-Pok%C3%A9_Ball_icon.svg.png" 
             alt="Pokéball logo" 
-            className="w-8 h-8 mr-3" 
+            className="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3" 
           />
-          <Link href="/">
-            <a className="text-2xl font-bold font-poppins">PokéRank</a>
-          </Link>
+          <span className="text-xl sm:text-2xl font-bold font-poppins">
+            <Link href="/">PokéRank</Link>
+          </span>
         </div>
         
+        {/* Desktop navigation */}
         <nav className="hidden md:flex space-x-6">
-          <Link href="/#voting">
-            <a className={`font-medium hover:underline ${location === "/#voting" ? "underline" : ""}`}>Vote</a>
-          </Link>
-          <Link href="/#rankings">
-            <a className={`font-medium hover:underline ${location === "/#rankings" ? "underline" : ""}`}>Rankings</a>
-          </Link>
-          <Link href="/#history">
-            <a className={`font-medium hover:underline ${location === "/#history" ? "underline" : ""}`}>History</a>
-          </Link>
-          <Link href="/#about">
-            <a className={`font-medium hover:underline ${location === "/#about" ? "underline" : ""}`}>About</a>
-          </Link>
+          {navItems.map((item) => (
+            <Link 
+              key={item.href} 
+              href={item.href} 
+              className={`font-medium hover:underline ${location === item.href ? "underline" : ""}`}
+            >
+              {item.label}
+            </Link>
+          ))}
         </nav>
         
         <button 
@@ -65,18 +71,16 @@ export default function Header() {
       {/* Mobile menu */}
       <div className={`${isMobileMenuOpen ? 'block' : 'hidden'} md:hidden bg-pokemon-red pb-4`}>
         <div className="container mx-auto px-4 flex flex-col space-y-2">
-          <Link href="/#voting">
-            <a className="text-white py-2 font-medium" onClick={() => setIsMobileMenuOpen(false)}>Vote</a>
-          </Link>
-          <Link href="/#rankings">
-            <a className="text-white py-2 font-medium" onClick={() => setIsMobileMenuOpen(false)}>Rankings</a>
-          </Link>
-          <Link href="/#history">
-            <a className="text-white py-2 font-medium" onClick={() => setIsMobileMenuOpen(false)}>History</a>
-          </Link>
-          <Link href="/#about">
-            <a className="text-white py-2 font-medium" onClick={() => setIsMobileMenuOpen(false)}>About</a>
-          </Link>
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="text-white py-2 font-medium block" 
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              {item.label}
+            </Link>
+          ))}
         </div>
       </div>
     </header>

@@ -105,28 +105,32 @@ export default function VotingSection() {
         {matchup ? (
           <>
             {/* Matchup Container */}
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-center">
+            <div className="flex flex-col md:flex-row gap-6 items-center justify-center w-full max-w-4xl mx-auto">
               {/* Left Pokemon */}
-              <PokemonCard 
-                pokemon={matchup.pokemon1}
-                onVote={handleVote}
-                isLoading={isLoadingMatchup}
-                voteStatus={getPokemonVoteStatus(matchup.pokemon1.id)}
-              />
+              <div className="w-full sm:max-w-[250px] md:max-w-xs">
+                <PokemonCard 
+                  pokemon={matchup.pokemon1}
+                  onVote={handleVote}
+                  isLoading={isLoadingMatchup}
+                  voteStatus={getPokemonVoteStatus(matchup.pokemon1.id)}
+                />
+              </div>
               
               {/* VS Divider */}
-              <div className="flex flex-col items-center mx-4 my-2">
-                <div className="bg-pokemon-yellow text-dark-gray font-bold text-2xl w-12 h-12 rounded-full flex items-center justify-center shadow-md">VS</div>
-                <div className="text-gray-500 text-sm mt-2">Choose One</div>
+              <div className="flex flex-col items-center mx-2 my-1 sm:mx-4 sm:my-2">
+                <div className="bg-pokemon-yellow text-dark-gray font-bold text-xl sm:text-2xl w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-md">VS</div>
+                <div className="text-gray-500 text-xs sm:text-sm mt-1 sm:mt-2">Choose One</div>
               </div>
               
               {/* Right Pokemon */}
-              <PokemonCard 
-                pokemon={matchup.pokemon2}
-                onVote={handleVote}
-                isLoading={isLoadingMatchup}
-                voteStatus={getPokemonVoteStatus(matchup.pokemon2.id)}
-              />
+              <div className="w-full sm:max-w-[250px] md:max-w-xs">
+                <PokemonCard 
+                  pokemon={matchup.pokemon2}
+                  onVote={handleVote}
+                  isLoading={isLoadingMatchup}
+                  voteStatus={getPokemonVoteStatus(matchup.pokemon2.id)}
+                />
+              </div>
             </div>
 
             {/* Skip Button */}
@@ -155,7 +159,7 @@ export default function VotingSection() {
           <div className="text-center py-8">
             <p className="text-gray-600">Could not load a matchup. Please try again later.</p>
             <Button
-              onClick={refetchMatchup}
+              onClick={() => refetchMatchup()}
               className="mt-4 bg-pokemon-red hover:bg-red-700 text-white"
             >
               Try Again
