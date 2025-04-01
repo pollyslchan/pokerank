@@ -14,7 +14,7 @@ export default function StatsSection() {
   if (isLoading) {
     return (
       <section id="stats" className="mb-12">
-        <div className="bg-white rounded-xl shadow-lg p-3 sm:p-4 md:p-6">
+        <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg p-3 sm:p-4 md:p-6">
           <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6">Voting Statistics</h3>
           <div className="flex justify-center items-center py-8 sm:py-10 md:py-16">
             <div className="loader w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 border-4 border-gray-300 border-t-4 rounded-full"></div>
@@ -31,7 +31,7 @@ export default function StatsSection() {
 
   return (
     <section id="stats" className="mb-12">
-      <div className="bg-white rounded-xl shadow-lg p-3 sm:p-4 md:p-6">
+      <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg p-3 sm:p-4 md:p-6">
         <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6">Voting Statistics</h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 md:gap-6">

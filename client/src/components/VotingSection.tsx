@@ -77,7 +77,7 @@ export default function VotingSection() {
   if (isLoadingMatchup && !matchup) {
     return (
       <section id="voting" className="mb-12">
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg p-6 mb-8">
           <h3 className="text-2xl font-bold mb-6 text-center">Current Matchup</h3>
           <div className="flex justify-center items-center py-16">
             <div className="loader w-12 h-12 border-4 border-gray-300 border-t-4 rounded-full"></div>
@@ -99,7 +99,7 @@ export default function VotingSection() {
 
   return (
     <section id="voting" className="mb-12">
-      <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+      <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg p-6 mb-8">
         <h3 className="text-2xl font-bold mb-6 text-center">Current Matchup</h3>
 
         {matchup ? (

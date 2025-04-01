@@ -1,3 +1,30 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --pokemon-blue: #2a75bb;
+  --pokemon-yellow: #ffcb05;
+  --pokemon-red: #fb1b1b;
+}
+
+.bg-pokemon-blue {
+  background-color: var(--pokemon-blue);
+}
+
+.text-pokemon-blue {
+  color: var(--pokemon-blue);
+}
+
+.bg-pokemon-yellow {
+  background-color: var(--pokemon-yellow);
+}
+
+.bg-pokemon-red {
+  background-color: var(--pokemon-red);
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

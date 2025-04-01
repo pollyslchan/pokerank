@@ -26,7 +26,7 @@ export default function RankingsSection() {
     <section id="rankings" className="mb-12">
       <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
         {/* Top Rankings */}
-        <div className="flex-1 bg-white rounded-xl shadow-lg p-3 sm:p-4 md:p-6">
+        <div className="flex-1 bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg p-3 sm:p-4 md:p-6">
           <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6">Top Rankings</h3>
 
           {isLoadingRankings ? (
@@ -86,7 +86,7 @@ export default function RankingsSection() {
         </div>
 
         {/* Recent Votes */}
-        <div className="flex-1 bg-white rounded-xl shadow-lg p-3 sm:p-4 md:p-6">
+        <div className="flex-1 bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg p-3 sm:p-4 md:p-6">
           <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6" id="history">Recent Votes</h3>
 
           {isLoadingVotes ? (
