@@ -11,40 +11,16 @@ export async function fetchPokemonData(): Promise<InsertPokemon[]> {
     // Create base Pokemon collection with reliable images from PokeAPI
     const pokemonData: InsertPokemon[] = [];
     
-    // For demo purposes, we'll limit to a reasonable number of Pokemon
-    // Get Gen 1-9 starters and some other popular Pokemon
-    const importantPokemonNumbers = [
-      // Gen 1 starters and popular Pokemon
-      1, 4, 7, 25, 150, 
-      // Gen 2 starters
-      152, 155, 158,
-      // Gen 3 starters  
-      252, 255, 258,
-      // Gen 4 starters
-      387, 390, 393,
-      // Gen 5 starters
-      495, 498, 501,
-      // Gen 6 starters  
-      650, 653, 656,
-      // Gen 7 starters
-      722, 725, 728,
-      // Gen 8 starters
-      810, 813, 816,
-      // Gen 9 starters  
-      906, 909, 912
-    ];
-    
-    // Also include every 50th Pokemon to get a good distribution
-    for (let i = 50; i <= 1000; i += 50) {
-      if (!importantPokemonNumbers.includes(i)) {
-        importantPokemonNumbers.push(i);
-      }
+    // Create a list of all Pokémon numbers from 1 to 1025
+    const allPokemonNumbers: number[] = [];
+    for (let i = 1; i <= 1025; i++) {
+      allPokemonNumbers.push(i);
     }
     
-    console.log(`Creating base entries for ${importantPokemonNumbers.length} Pokémon...`);
+    console.log(`Creating base entries for ${allPokemonNumbers.length} Pokémon...`);
     
-    // Create entries for selected Pokemon with reliable images
-    for (const pokedexNumber of importantPokemonNumbers) {
+    // Create entries for all Pokemon with reliable images
+    for (const pokedexNumber of allPokemonNumbers) {
       // Use PokeAPI sprites which are reliable
       const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokedexNumber}.png`;
       
