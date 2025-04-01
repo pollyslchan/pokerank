@@ -559,9 +559,18 @@ export class MemStorage implements IStorage {
       .sort((a, b) => b.winRate - a.winRate)
       .slice(0, 8); // Limit to top 8 types
     
+    // Calculate votes from today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const votesToday = this.votes.filter(vote => {
+      const voteDate = new Date(vote.timestamp);
+      return voteDate >= today;
+    }).length;
+
     return {
       totalVotes: this.votes.length,
       totalPokemon: this.pokemon.size,
+      votesToday,
       typeWinRates,
     };
   }

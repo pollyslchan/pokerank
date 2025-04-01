@@ -51,7 +51,7 @@ export default function StatsSection() {
 
           <div className="bg-gradient-to-br from-white to-light-gray rounded-lg p-2 sm:p-3 md:p-4 text-center sm:col-span-2 md:col-span-1 shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100">
             <div className="text-xl sm:text-2xl md:text-4xl font-bold text-pokemon-blue mb-0.5 sm:mb-1 md:mb-2">
-              {stats ? formatNumber(stats.totalVotes) : '0'}
+              {stats && stats.votesToday ? formatNumber(stats.votesToday) : '0'}
             </div>
             <div className="text-xs sm:text-sm md:text-base text-gray-600">Total Votes Cast Today</div>
           </div>

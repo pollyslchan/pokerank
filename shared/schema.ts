@@ -43,6 +43,7 @@ export type InsertVote = z.infer<typeof insertVoteSchema>;
 export const statsSchema = z.object({
   totalVotes: z.number(),
   totalPokemon: z.number(),
+  votesToday: z.number(),
   typeWinRates: z.array(
     z.object({
       type: z.string(),
