@@ -33,7 +33,7 @@ export default function VotingSection() {
         title: "Vote recorded!",
         description: "Your vote has been recorded. New matchup loaded.",
       });
-      
+
       // Reset voted state and load a new matchup after a short delay
       setTimeout(() => {
         setVotedPokemonId(null);
@@ -50,7 +50,7 @@ export default function VotingSection() {
         description: error instanceof Error ? error.message : "Unknown error occurred",
         variant: "destructive",
       });
-      
+
       // Reset voted state
       setVotedPokemonId(null);
     }
@@ -59,12 +59,12 @@ export default function VotingSection() {
   // Handle vote button click
   const handleVote = (pokemonId: number) => {
     if (!matchup) return;
-    
+
     setVotedPokemonId(pokemonId);
-    
+
     const winnerId = pokemonId;
     const loserId = pokemonId === matchup.pokemon1.id ? matchup.pokemon2.id : matchup.pokemon1.id;
-    
+
     voteMutation.mutate({ winnerId, loserId });
   };
 
@@ -101,13 +101,13 @@ export default function VotingSection() {
     <section id="voting" className="mb-12">
       <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
         <h3 className="text-2xl font-bold mb-6 text-center">Current Matchup</h3>
-        
+
         {matchup ? (
           <>
             {/* Matchup Container */}
             <div className="flex flex-col md:flex-row gap-4 sm:gap-6 items-center justify-center w-full max-w-4xl mx-auto">
               {/* Left Pokemon */}
-              <div className="w-full max-w-[280px] sm:max-w-[250px] md:max-w-xs">
+              <div className="w-[45%] max-w-[250px]">
                 <PokemonCard 
                   pokemon={matchup.pokemon1}
                   onVote={handleVote}
@@ -115,15 +115,15 @@ export default function VotingSection() {
                   voteStatus={getPokemonVoteStatus(matchup.pokemon1.id)}
                 />
               </div>
-              
+
               {/* VS Divider */}
               <div className="flex flex-col items-center my-1 mx-0 sm:mx-4 sm:my-2">
                 <div className="bg-pokemon-yellow text-dark-gray font-bold text-xl sm:text-2xl w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-md">VS</div>
                 <div className="text-gray-500 text-xs sm:text-sm mt-1 sm:mt-2">Choose One</div>
               </div>
-              
+
               {/* Right Pokemon */}
-              <div className="w-full max-w-[280px] sm:max-w-[250px] md:max-w-xs">
+              <div className="w-[45%] max-w-[250px]">
                 <PokemonCard 
                   pokemon={matchup.pokemon2}
                   onVote={handleVote}
