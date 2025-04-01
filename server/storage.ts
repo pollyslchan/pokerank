@@ -15,10 +15,12 @@ export interface IStorage {
   updatePokemonRating(id: number, rating: number, isWinner: boolean): Promise<Pokemon>;
   getRandomPokemonPair(): Promise<[Pokemon, Pokemon]>;
   getTopRankedPokemon(limit: number): Promise<PokemonWithRank[]>;
+  clearAllPokemon(): Promise<void>; // Added method to clear Pokemon data
   
   // Vote methods
   insertVote(vote: InsertVote): Promise<Vote>;
   getRecentVotes(limit: number): Promise<VoteWithPokemon[]>;
+  clearAllVotes(): Promise<void>; // Added method to clear vote data
   
   // Stats methods
   getStats(): Promise<Stats>;
@@ -157,6 +159,25 @@ export class MemStorage implements IStorage {
     });
   }
 
+  async clearAllPokemon(): Promise<void> {
+    this.pokemon.clear();
+    this.pokemonCurrentId = 1;
+    console.log("Cleared all Pokémon data");
+  }
+  
+  async clearAllVotes(): Promise<void> {
+    this.votes = [];
+    this.voteCurrentId = 1;
+    console.log("Cleared all vote data");
+    
+    // Reset all Pokemon win/loss records
+    for (const pokemon of this.pokemon.values()) {
+      pokemon.wins = 0;
+      pokemon.losses = 0;
+      pokemon.rating = 1500; // Reset to default rating
+    }
+  }
+  
   async getStats(): Promise<Stats> {
     const allPokemon = Array.from(this.pokemon.values());
     

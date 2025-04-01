@@ -9,23 +9,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/init", async (req: Request, res: Response) => {
     try {
       const existingPokemon = await storage.getAllPokemon();
+      let message = "";
       
-      if (existingPokemon.length === 0) {
+      // Force re-initialization if we have no Pokemon or if the reset query param is present
+      if (existingPokemon.length === 0 || req.query.reset === 'true') {
+        // Clear existing Pokemon and votes if needed
+        if (existingPokemon.length > 0) {
+          // This is a development-only feature to help with testing
+          console.log("Resetting Pokemon data...");
+          await storage.clearAllPokemon();
+          await storage.clearAllVotes();
+        }
+        
+        // Fetch and insert new Pokemon data
         const pokemonData = await fetchPokemonData();
         
+        // Insert all Pokemon
         for (const pokemon of pokemonData) {
           await storage.insertPokemon(pokemon);
         }
         
-        res.json({ 
-          success: true, 
-          message: `Initialized ${pokemonData.length} Pokémon` 
-        });
+        message = `Initialized ${pokemonData.length} Pokémon`;
+        console.log(message);
+        res.json({ success: true, message });
       } else {
-        res.json({ 
-          success: true, 
-          message: `Database already contains ${existingPokemon.length} Pokémon` 
-        });
+        message = `Database already contains ${existingPokemon.length} Pokémon`;
+        console.log(message);
+        res.json({ success: true, message });
       }
     } catch (error) {
       console.error("Error initializing Pokémon data:", error);

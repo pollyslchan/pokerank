@@ -3,193 +3,230 @@ import fetch from "node-fetch";
 import * as cheerio from "cheerio";
 
 /**
- * Fetches Pokemon data from the Pokemon wiki
- * @returns Array of Pokemon data objects ready for database insertion
+ * Fetches Pokemon data for database insertion
+ * @returns Array of Pokemon data objects
  */
 export async function fetchPokemonData(): Promise<InsertPokemon[]> {
   try {
-    // Fetch the Pokémon list page
-    const response = await fetch('https://pokemon.fandom.com/wiki/List_of_Pok%C3%A9mon');
-    if (!response.ok) {
-      throw new Error(`Failed to fetch Pokémon data: ${response.status} ${response.statusText}`);
-    }
-
-    const html = await response.text();
-    const $ = cheerio.load(html);
+    // Create base Pokemon collection with reliable images from PokeAPI
     const pokemonData: InsertPokemon[] = [];
-
-    // Find all wikitable elements (there are multiple tables for different generations)
-    const tables = $('table.wikitable');
-    console.log(`Found ${tables.length} Pokemon tables on the wiki page`);
     
-    tables.each((tableIndex, tableElement) => {
-      // Process each row in the table
-      $(tableElement).find('tr').each((rowIndex, row) => {
-        // Skip header row
-        if (rowIndex === 0) return;
-
-        const columns = $(row).find('td');
-        if (columns.length < 2) return; // Skip rows with insufficient data
-
-        try {
-          // Extract Pokédex number and name from the first column
-          const firstCell = $(columns[0]);
-          const pokedexAndName = firstCell.text().trim().split(' ');
-          
-          if (pokedexAndName.length < 2) return;
-          
-          const pokedexMatch = pokedexAndName[0].match(/^#?(\d+)/);
-          if (!pokedexMatch) return;
-          const pokedexNumber = parseInt(pokedexMatch[1], 10);
-          
-          // Get name
-          const name = pokedexAndName.slice(1).join(' ').trim();
-          if (!name) return;
-
-          // Get image URL from the second column
-          const imageCell = $(columns[1]);
-          let imageUrl = '';
-          const imgElement = imageCell.find('img').first();
-
-          if (imgElement.length > 0) {
-            // Get the original image URL from the data-src attribute
-            imageUrl = imgElement.attr('data-src') || imgElement.attr('src') || '';
+    // For demo purposes, we'll limit to a reasonable number of Pokemon
+    // Get Gen 1-9 starters and some other popular Pokemon
+    const importantPokemonNumbers = [
+      // Gen 1 starters and popular Pokemon
+      1, 4, 7, 25, 150, 
+      // Gen 2 starters
+      152, 155, 158,
+      // Gen 3 starters  
+      252, 255, 258,
+      // Gen 4 starters
+      387, 390, 393,
+      // Gen 5 starters
+      495, 498, 501,
+      // Gen 6 starters  
+      650, 653, 656,
+      // Gen 7 starters
+      722, 725, 728,
+      // Gen 8 starters
+      810, 813, 816,
+      // Gen 9 starters  
+      906, 909, 912
+    ];
+    
+    // Also include every 50th Pokemon to get a good distribution
+    for (let i = 50; i <= 1000; i += 50) {
+      if (!importantPokemonNumbers.includes(i)) {
+        importantPokemonNumbers.push(i);
+      }
+    }
+    
+    console.log(`Creating base entries for ${importantPokemonNumbers.length} Pokémon...`);
+    
+    // Create entries for selected Pokemon with reliable images
+    for (const pokedexNumber of importantPokemonNumbers) {
+      // Use PokeAPI sprites which are reliable
+      const imageUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokedexNumber}.png`;
+      
+      // Default name/types until we can fetch the real ones
+      const name = `Pokémon #${pokedexNumber}`;
+      
+      pokemonData.push({
+        pokedexNumber,
+        name,
+        imageUrl,
+        types: ["Normal"], 
+        rating: 1500,
+        wins: 0,
+        losses: 0
+      });
+    }
+    
+    // Try to enhance with wiki data
+    try {
+      console.log("Enhancing Pokémon data from wiki...");
+      const response = await fetch('https://pokemon.fandom.com/wiki/List_of_Pok%C3%A9mon');
+      
+      if (response.ok) {
+        const html = await response.text();
+        const $ = cheerio.load(html);
+        
+        // Create a map for easy lookup and updating
+        const pokemonMap = new Map<number, InsertPokemon>();
+        pokemonData.forEach(pokemon => {
+          pokemonMap.set(pokemon.pokedexNumber, pokemon);
+        });
+        
+        // Process wiki tables
+        const tables = $('table.wikitable');
+        console.log(`Found ${tables.length} Pokemon tables on the wiki page`);
+        
+        tables.each((_, tableElement) => {
+          $(tableElement).find('tr').each((rowIndex, row) => {
+            // Skip header row
+            if (rowIndex === 0) return;
             
-            // Clean up the URL and ensure it's the original version
-            if (imageUrl) {
-              // Remove any scaling parameters
-              imageUrl = imageUrl.replace(/\/scale-to-width-down\/\d+/, '');
-              // Remove revision info
-              imageUrl = imageUrl.split('/revision/')[0];
-              // Ensure it's HTTPS
-              if (imageUrl.startsWith('//')) {
-                imageUrl = 'https:' + imageUrl;
+            const columns = $(row).find('td');
+            if (columns.length < 2) return;
+            
+            try {
+              // Extract Pokédex number
+              const firstCell = $(columns[0]);
+              const cellText = firstCell.text().trim();
+              const pokedexNumberMatch = cellText.match(/(\d+)/);
+              
+              if (!pokedexNumberMatch) return;
+              const pokedexNumber = parseInt(pokedexNumberMatch[1], 10);
+              
+              // Only process if we have this Pokemon in our map
+              if (!pokemonMap.has(pokedexNumber)) return;
+              
+              // Get name from text or link
+              let name = "";
+              const nameMatch = cellText.match(/\d+\s+(.+)/);
+              if (nameMatch) {
+                name = nameMatch[1].trim();
+              } else {
+                const nameText = firstCell.find('a').first().text().trim();
+                if (nameText && !nameText.match(/^\d+$/)) {
+                  name = nameText;
+                }
               }
-              // Add .png extension if missing
-              if (!imageUrl.endsWith('.png')) {
-                imageUrl += '.png';
+              
+              // Update name if found
+              if (name) {
+                const pokemon = pokemonMap.get(pokedexNumber);
+                if (pokemon) {
+                  pokemon.name = name;
+                }
               }
+              
+              // Extract types
+              const typeCell = $(columns[columns.length - 1]);
+              let types: string[] = [];
+              
+              // First try to get types from images
+              const typeImages = typeCell.find('img');
+              if (typeImages.length > 0) {
+                typeImages.each((_, img) => {
+                  const typeFromAlt = $(img).attr('alt')?.replace(' type', '').trim();
+                  if (typeFromAlt && !types.includes(typeFromAlt)) {
+                    types.push(typeFromAlt);
+                  }
+                });
+              }
+              
+              // Then try text
+              if (types.length === 0) {
+                const typeText = typeCell.text().trim().split('/');
+                typeText.forEach(type => {
+                  const cleanType = type.trim();
+                  if (cleanType && !["???", "N/A", "-"].includes(cleanType) && !types.includes(cleanType)) {
+                    types.push(cleanType);
+                  }
+                });
+              }
+              
+              // Update types if found
+              if (types.length > 0) {
+                const pokemon = pokemonMap.get(pokedexNumber);
+                if (pokemon) {
+                  pokemon.types = types;
+                }
+              }
+            } catch (error) {
+              console.error(`Error processing row: ${error}`);
+            }
+          });
+        });
+        
+        // Ensure accurate data for key Pokemon
+        const keyPokemon = [
+          { number: 1, name: "Bulbasaur", types: ["Grass", "Poison"] },
+          { number: 4, name: "Charmander", types: ["Fire"] },
+          { number: 7, name: "Squirtle", types: ["Water"] },
+          { number: 25, name: "Pikachu", types: ["Electric"] },
+          { number: 150, name: "Mewtwo", types: ["Psychic"] }
+        ];
+        
+        keyPokemon.forEach(({ number, name, types }) => {
+          const pokemon = pokemonMap.get(number);
+          if (pokemon) {
+            // Update if still using default values
+            if (pokemon.name === `Pokémon #${number}`) {
+              pokemon.name = name;
+            }
+            if (pokemon.types.length === 1 && pokemon.types[0] === "Normal") {
+              pokemon.types = types;
             }
           }
-          
-          // If we couldn't find an image, use a default Pokeball image
-          if (!imageUrl) {
-            imageUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1200px-Pok%C3%A9_Ball_icon.svg.png';
-          }
-
-          // Extract types from the type column (typically the last column)
-          let types: string[] = [];
-          const typeCell = $(columns[columns.length - 1]);
-          
-          // Try to get types from images first (they typically have alt text with the type)
-          const typeImages = typeCell.find('img');
-          if (typeImages.length > 0) {
-            typeImages.each((_, img) => {
-              const typeFromAlt = $(img).attr('alt')?.replace(' type', '').trim();
-              if (typeFromAlt && !types.includes(typeFromAlt)) {
-                types.push(typeFromAlt);
-              }
-            });
-          }
-          
-          // If no types found from images, try getting from text
-          if (types.length === 0) {
-            const typeText = typeCell.text().trim().split('/');
-            typeText.forEach(type => {
-              const cleanType = type.trim();
-              if (cleanType && cleanType !== "???" && cleanType !== "N/A" && cleanType !== "-" && !types.includes(cleanType)) {
-                types.push(cleanType);
-              }
-            });
-          }
-          
-          // If still no types, use a default "Normal" type
-          if (types.length === 0) {
-            types = ["Normal"];
-          }
-
-          // Only add Pokémon if we have the required data
-          if (pokedexNumber && name) {
-            pokemonData.push({
-              pokedexNumber,
-              name,
-              imageUrl,
-              types,
-              rating: 1500,
-              wins: 0,
-              losses: 0
-            });
-          }
-        } catch (error) {
-          console.error(`Error processing Pokémon row: ${error}`);
-        }
-      });
-    });
-
-    // Sort by Pokedex number to ensure proper ordering
-    pokemonData.sort((a, b) => a.pokedexNumber - b.pokedexNumber);
-    
-    // Remove any duplicates (by Pokedex number)
-    const uniquePokemon = pokemonData.filter((pokemon, index, self) => 
-      index === self.findIndex(p => p.pokedexNumber === pokemon.pokedexNumber)
-    );
-
-    console.log(`Extracted ${uniquePokemon.length} Pokémon from the wiki.`);
-    
-    // If we have no Pokemon, use a small set of hardcoded ones to ensure the app works
-    if (uniquePokemon.length === 0) {
-      const defaultPokemon: InsertPokemon[] = [
-        {
-          pokedexNumber: 1,
-          name: "Bulbasaur",
-          imageUrl: "https://static.wikia.nocookie.net/pokemon/images/1/1d/0001.png",
-          types: ["Grass", "Poison"],
-          rating: 1500,
-          wins: 0,
-          losses: 0
-        },
-        {
-          pokedexNumber: 4,
-          name: "Charmander",
-          imageUrl: "https://static.wikia.nocookie.net/pokemon/images/0/03/0004.png",
-          types: ["Fire"],
-          rating: 1500,
-          wins: 0,
-          losses: 0
-        },
-        {
-          pokedexNumber: 7,
-          name: "Squirtle",
-          imageUrl: "https://static.wikia.nocookie.net/pokemon/images/9/95/0007.png",
-          types: ["Water"],
-          rating: 1500,
-          wins: 0,
-          losses: 0
-        },
-        {
-          pokedexNumber: 25,
-          name: "Pikachu",
-          imageUrl: "https://static.wikia.nocookie.net/pokemon/images/1/17/0025.png",
-          types: ["Electric"],
-          rating: 1500,
-          wins: 0,
-          losses: 0
-        }
-      ];
-      console.log("Using default Pokemon data since none could be fetched from the wiki.");
-      return defaultPokemon;
+        });
+        
+        // Convert map back to array
+        const enhancedPokemon = Array.from(pokemonMap.values());
+        
+        // Sort by Pokedex number
+        enhancedPokemon.sort((a, b) => a.pokedexNumber - b.pokedexNumber);
+        
+        console.log(`Returning ${enhancedPokemon.length} enhanced Pokémon.`);
+        return enhancedPokemon;
+      }
+    } catch (error) {
+      console.error(`Error enhancing Pokémon data: ${error}`);
+      // Continue with base dataset if enhancement fails
     }
     
-    return uniquePokemon;
-  } catch (error) {
-    console.error(`Failed to fetch Pokémon data: ${error}`);
+    // Ensure key Pokemon have correct data
+    const keyPokemon = [
+      { number: 1, name: "Bulbasaur", types: ["Grass", "Poison"] },
+      { number: 4, name: "Charmander", types: ["Fire"] },
+      { number: 7, name: "Squirtle", types: ["Water"] },
+      { number: 25, name: "Pikachu", types: ["Electric"] },
+      { number: 150, name: "Mewtwo", types: ["Psychic"] }
+    ];
     
-    // Return a fallback set of Pokemon if there's an error
+    for (const pokemon of pokemonData) {
+      const keyData = keyPokemon.find(kp => kp.number === pokemon.pokedexNumber);
+      if (keyData) {
+        pokemon.name = keyData.name;
+        pokemon.types = keyData.types;
+      }
+    }
+    
+    // Sort and return
+    pokemonData.sort((a, b) => a.pokedexNumber - b.pokedexNumber);
+    console.log(`Returning ${pokemonData.length} Pokémon.`);
+    return pokemonData;
+    
+  } catch (error) {
+    console.error(`Failed to create Pokémon data: ${error}`);
+    
+    // Return fallback set with at least the starter Pokemon
     const fallbackPokemon: InsertPokemon[] = [
       {
         pokedexNumber: 1,
         name: "Bulbasaur",
-        imageUrl: "https://static.wikia.nocookie.net/pokemon/images/1/1d/0001.png/revision/latest",
+        imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
         types: ["Grass", "Poison"],
         rating: 1500,
         wins: 0,
@@ -198,7 +235,7 @@ export async function fetchPokemonData(): Promise<InsertPokemon[]> {
       {
         pokedexNumber: 4,
         name: "Charmander",
-        imageUrl: "https://static.wikia.nocookie.net/pokemon/images/0/03/0004.png/revision/latest",
+        imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png",
         types: ["Fire"],
         rating: 1500,
         wins: 0,
@@ -207,7 +244,7 @@ export async function fetchPokemonData(): Promise<InsertPokemon[]> {
       {
         pokedexNumber: 7,
         name: "Squirtle",
-        imageUrl: "https://static.wikia.nocookie.net/pokemon/images/9/95/0007.png/revision/latest",
+        imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png",
         types: ["Water"],
         rating: 1500,
         wins: 0,
@@ -216,14 +253,14 @@ export async function fetchPokemonData(): Promise<InsertPokemon[]> {
       {
         pokedexNumber: 25,
         name: "Pikachu",
-        imageUrl: "https://static.wikia.nocookie.net/pokemon/images/1/17/0025.png/revision/latest",
+        imageUrl: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png",
         types: ["Electric"],
         rating: 1500,
         wins: 0,
         losses: 0
       }
     ];
-    console.log("Using fallback Pokemon data due to fetch error.");
+    console.log("Using fallback Pokemon data due to errors.");
     return fallbackPokemon;
   }
 }
