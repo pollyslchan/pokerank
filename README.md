@@ -10,6 +10,7 @@ A full-stack interactive web application that allows users to vote on their favo
 - Type-based statistics
 - Responsive design (mobile and desktop friendly)
 - Complete collection of all 1025 Pokémon from all generations
+- PostgreSQL database for persistent storage
 
 ## Technology Stack
 
@@ -37,14 +38,44 @@ The app uses an ELO rating system to rank Pokémon. When users vote between two 
 
 ## Screenshots
 
-- Voting interface with Pokémon cards
-- Leaderboard displaying top ranked Pokémon
-- Stats page showing type effectiveness
-- Responsive mobile design
+To add screenshots to the project:
+
+1. Take screenshots of the application (voting interface, leaderboard, etc.)
+2. Save them in the `screenshots` directory
+3. Update this README to include the screenshots with descriptions
+
+Example:
+```markdown
+![Voting Interface](screenshots/voting-interface.png)
+*Caption: The voting interface showing two Pokémon cards side by side*
+```
 
 ## Data Source
 
 Pokémon data is sourced from the [PokeAPI](https://pokeapi.co/).
+
+## Updating the Application
+
+### Adding New Features
+
+1. Create a new branch: `git checkout -b feature/my-new-feature`
+2. Implement your changes
+3. Test thoroughly
+4. Commit your changes: `git commit -m "Add my new feature"`
+5. Push to your branch: `git push origin feature/my-new-feature`
+6. Create a Pull Request on GitHub
+
+### Updating Pokémon Data
+
+If new Pokémon are released:
+
+1. Update the fetch logic in `server/pokemon.ts`
+2. Adjust the max Pokémon count in the appropriate constants
+3. Run the data initialization endpoint to fetch the new Pokémon data
+
+## Deployment
+
+For detailed deployment instructions, please refer to the [DEPLOYMENT.md](./DEPLOYMENT.md) file.
 
 ## Contributions
 
