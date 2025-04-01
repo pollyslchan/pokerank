@@ -61,7 +61,7 @@ export default function PokemonCard({ pokemon, onVote, isLoading, voteStatus }: 
           {pokemon.types.map((type, index) => (
             <span 
               key={index} 
-              className={`px-3 py-1 bg-gray-400 text-white text-xs rounded-full`}
+              className={`px-3 py-1 ${typeColors[type] || 'bg-gray-400'} text-white text-xs rounded-full`}
             >
               {type}
             </span>
