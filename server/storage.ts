@@ -128,13 +128,17 @@ export class MemStorage implements IStorage {
   async getTopRankedPokemon(limit: number): Promise<PokemonWithRank[]> {
     const allPokemon = Array.from(this.pokemon.values());
     
-    return allPokemon
-      .sort((a, b) => b.rating - a.rating)
-      .slice(0, limit)
-      .map((pokemon, index) => ({
-        ...pokemon,
-        rank: index + 1
-      }));
+    // If limit is very large (1000+), we're asking for all Pokémon
+    // Otherwise apply the limit for top rankings
+    const pokemonToReturn = allPokemon
+      .sort((a, b) => b.rating - a.rating);
+      
+    const result = limit < 1000 ? pokemonToReturn.slice(0, limit) : pokemonToReturn;
+    
+    return result.map((pokemon, index) => ({
+      ...pokemon,
+      rank: index + 1
+    }));
   }
 
   async insertVote(insertVote: InsertVote): Promise<Vote> {

@@ -337,11 +337,15 @@ export class DrizzleStorage implements IStorage {
   }
 
   async getTopRankedPokemon(limit: number): Promise<PokemonWithRank[]> {
-    // Get top ranked Pokemon
-    const result = await this.db.select()
-      .from(pokemons)
-      .orderBy(desc(pokemons.rating))
-      .limit(limit);
+    let query = this.db.select().from(pokemons).orderBy(desc(pokemons.rating));
+    
+    // If limit is very large (1000+), we're asking for all Pokémon
+    // Otherwise apply the limit for top rankings
+    if (limit < 1000) {
+      query = query.limit(limit);
+    }
+    
+    const result = await query;
     
     // Add rank to each Pokemon
     return result.map((pokemon, index) => ({

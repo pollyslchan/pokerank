@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { PokemonWithRank } from "@shared/schema";
@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 
 export default function FullRankings() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 50; // Show 50 Pokémon per page for better performance
   
   // Fetch all Pokemon for rankings, we pass a large limit
   const { data: allPokemon, isLoading } = useQuery<PokemonWithRank[]>({
@@ -26,6 +28,20 @@ export default function FullRankings() {
                   pokemon.pokedexNumber.toString().includes(searchTerm)
       )
     : [];
+    
+  // Calculate total pages
+  const totalPages = Math.ceil(filteredPokemon.length / itemsPerPage);
+  
+  // Get current page items
+  const currentItems = filteredPokemon.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+  
+  // Reset to page 1 when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   return (
     <main className="flex-grow container mx-auto px-4 py-6">
@@ -54,58 +70,93 @@ export default function FullRankings() {
 
         {isLoading ? (
           <div className="flex justify-center items-center py-16">
-            <div className="loader w-12 h-12 border-4 border-gray-300 border-t-4 rounded-full"></div>
+            <div className="loader w-12 h-12 border-4 border-gray-300 border-t-4 rounded-full animate-spin"></div>
           </div>
         ) : filteredPokemon.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left table-auto font-roboto">
-              <thead>
-                <tr className="bg-light-gray">
-                  <th className="px-4 py-2 rounded-tl-lg">Rank</th>
-                  <th className="px-4 py-2">#</th>
-                  <th className="px-4 py-2">Pokémon</th>
-                  <th className="px-4 py-2">Types</th>
-                  <th className="px-4 py-2">Rating</th>
-                  <th className="px-4 py-2 rounded-tr-lg">W/L</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredPokemon.map((pokemon) => (
-                  <tr key={pokemon.id} className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="px-4 py-3 font-bold">{pokemon.rank}</td>
-                    <td className="px-4 py-3">#{pokemon.pokedexNumber.toString().padStart(3, '0')}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center">
-                        <img 
-                          src={pokemon.imageUrl.replace('/revision/latest', '')} 
-                          alt={pokemon.name} 
-                          className="w-10 h-10 mr-3 object-contain"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1200px-Pok%C3%A9_Ball_icon.svg.png";
-                          }}
-                        />
-                        <span>{pokemon.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap gap-1">
-                        {pokemon.types.map((type, index) => (
-                          <span 
-                            key={index} 
-                            className={`px-2 py-1 text-white text-xs rounded-full ${getTypeColor(type)}`}
-                          >
-                            {type}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">{pokemon.rating}</td>
-                    <td className="px-4 py-3">{pokemon.wins}-{pokemon.losses}</td>
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left table-auto font-roboto text-sm">
+                <thead>
+                  <tr className="bg-gradient-to-r from-pokemon-blue to-blue-600 text-white">
+                    <th className="px-4 py-2 rounded-tl-lg">Rank</th>
+                    <th className="px-4 py-2">#</th>
+                    <th className="px-4 py-2">Pokémon</th>
+                    <th className="px-4 py-2">Types</th>
+                    <th className="px-4 py-2">Rating</th>
+                    <th className="px-4 py-2 rounded-tr-lg">W/L</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {currentItems.map((pokemon) => (
+                    <tr key={pokemon.id} className="border-b border-gray-200 hover:bg-gray-50">
+                      <td className="px-4 py-3 font-bold">{pokemon.rank}</td>
+                      <td className="px-4 py-3">#{pokemon.pokedexNumber.toString().padStart(3, '0')}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center">
+                          <img 
+                            src={pokemon.imageUrl} 
+                            alt={pokemon.name} 
+                            className="w-10 h-10 mr-3 object-contain"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1200px-Pok%C3%A9_Ball_icon.svg.png";
+                            }}
+                          />
+                          <span>{pokemon.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-1">
+                          {pokemon.types.map((type, index) => (
+                            <span 
+                              key={index} 
+                              className={`px-2 py-1 text-white text-xs rounded-full ${getTypeColor(type)}`}
+                            >
+                              {type}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">{pokemon.rating}</td>
+                      <td className="px-4 py-3">{pokemon.wins}-{pokemon.losses}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            
+            {/* Pagination controls */}
+            {totalPages > 1 && (
+              <div className="flex justify-between items-center mt-6">
+                <div className="text-sm text-gray-600">
+                  Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredPokemon.length)} of {filteredPokemon.length} Pokémon
+                </div>
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </Button>
+                  
+                  <div className="flex items-center px-2">
+                    {/* Simple page number display */}
+                    <span>Page {currentPage} of {totalPages}</span>
+                  </div>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
         ) : (
           <div className="text-center py-8">
             <p className="text-gray-600 mb-4">No Pokémon found matching "{searchTerm}"</p>
