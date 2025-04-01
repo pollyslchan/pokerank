@@ -29,40 +29,37 @@ export async function fetchPokemonData(): Promise<InsertPokemon[]> {
         if (rowIndex === 0) return;
 
         const columns = $(row).find('td');
-        if (columns.length < 3) return; // Skip rows with insufficient data
+        if (columns.length < 2) return; // Skip rows with insufficient data
 
         try {
-          // Extract Pokédex number
-          const pokedexText = $(columns[0]).text().trim();
-          const pokedexMatch = pokedexText.match(/^#?(\d+)/);
+          // Extract Pokédex number and name from the first column
+          const firstCell = $(columns[0]);
+          const pokedexAndName = firstCell.text().trim().split(' ');
+          
+          if (pokedexAndName.length < 2) return;
+          
+          const pokedexMatch = pokedexAndName[0].match(/^#?(\d+)/);
           if (!pokedexMatch) return;
           const pokedexNumber = parseInt(pokedexMatch[1], 10);
+          
+          // Get name
+          const name = pokedexAndName.slice(1).join(' ').trim();
+          if (!name) return;
 
-          // Extract name and image URL
-          const nameCell = $(columns[1]);
-          const name = nameCell.text().trim();
-          
-          // Handle different image formats
-          let imgElement = nameCell.find('img');
+          // Get image URL from the second column
+          const imageCell = $(columns[1]);
           let imageUrl = '';
-          
-          // Try different attributes for the image URL
+          const imgElement = imageCell.find('img');
+
           if (imgElement.length > 0) {
-            imageUrl = imgElement.attr('src') || 
-                      imgElement.attr('data-src') || 
+            // Try to get the best quality image URL
+            imageUrl = imgElement.attr('data-src') || 
+                      imgElement.attr('src') || 
                       imgElement.attr('data-image-key') || '';
-            
-            // For lazy-loaded images, prefer the data-src attribute
-            if (imageUrl.startsWith('data:') || imageUrl === '') {
-              imageUrl = imgElement.attr('data-src') || '';
-            }
-            
-            // Extract from parent link if image URL is still empty
-            if (!imageUrl) {
-              const parentLink = imgElement.parent('a');
-              if (parentLink.length > 0) {
-                imageUrl = parentLink.attr('href') || '';
-              }
+
+            // Clean up image URL
+            if (imageUrl.includes('/revision/')) {
+              imageUrl = imageUrl.split('/revision/')[0];
             }
             
             // Ensure URL is absolute
@@ -76,32 +73,31 @@ export async function fetchPokemonData(): Promise<InsertPokemon[]> {
             imageUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1200px-Pok%C3%A9_Ball_icon.svg.png';
           }
 
-          // Extract types - find the type cells (might be in different columns based on table structure)
+          // Extract types from the type column (typically the last column)
           let types: string[] = [];
-          const typeColumns = [$(columns[2]), $(columns[3])]; // Check both potential type columns
+          const typeCell = $(columns[columns.length - 1]);
           
-          typeColumns.forEach(typeCell => {
-            if (!typeCell) return;
-            
-            // Try to extract types from links first
-            const typeLinks = typeCell.find('a');
-            if (typeLinks.length > 0) {
-              typeLinks.each((_, element) => {
-                const typeText = $(element).text().trim();
-                if (typeText && !types.includes(typeText)) {
-                  types.push(typeText);
-                }
-              });
-            }
-            
-            // If no types found from links, try plain text
-            if (types.length === 0) {
-              const typeText = typeCell.text().trim();
-              if (typeText && typeText !== "???" && typeText !== "N/A" && typeText !== "-") {
-                types.push(typeText);
+          // Try to get types from images first (they typically have alt text with the type)
+          const typeImages = typeCell.find('img');
+          if (typeImages.length > 0) {
+            typeImages.each((_, img) => {
+              const typeFromAlt = $(img).attr('alt')?.replace(' type', '').trim();
+              if (typeFromAlt && !types.includes(typeFromAlt)) {
+                types.push(typeFromAlt);
               }
-            }
-          });
+            });
+          }
+          
+          // If no types found from images, try getting from text
+          if (types.length === 0) {
+            const typeText = typeCell.text().trim().split('/');
+            typeText.forEach(type => {
+              const cleanType = type.trim();
+              if (cleanType && cleanType !== "???" && cleanType !== "N/A" && cleanType !== "-" && !types.includes(cleanType)) {
+                types.push(cleanType);
+              }
+            });
+          }
           
           // If still no types, use a default "Normal" type
           if (types.length === 0) {
