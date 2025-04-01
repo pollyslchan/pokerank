@@ -79,9 +79,9 @@ export default function PokemonCard({ pokemon, onVote, isLoading, voteStatus }: 
           disabled={isLoading || voteStatus !== "idle"}
           className={`vote-button w-full py-2 sm:py-3 md:py-4 font-bold rounded-lg shadow-lg transition ${
             voteStatus === "voted" 
-              ? "bg-emerald-500 hover:bg-emerald-600" 
-              : "bg-indigo-600 hover:bg-indigo-700"
-          } text-xs sm:text-sm md:text-base text-white border-2 border-white hover:border-opacity-75`}
+              ? "bg-pokemon-blue hover:bg-pokemon-blue/90" 
+              : "bg-pokemon-blue hover:bg-pokemon-blue/90"
+          } text-xs sm:text-sm md:text-base text-white`}
         >
           {isLoading ? (
             <>
