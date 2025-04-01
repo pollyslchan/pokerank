@@ -36,14 +36,14 @@ export default function StatsSection() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 md:gap-6">
           <div className="bg-gradient-to-br from-white to-light-gray rounded-lg p-2 sm:p-3 md:p-4 text-center shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100">
-            <div className="text-xl sm:text-2xl md:text-4xl font-bold bg-gradient-to-r from-pokemon-blue to-blue-600 bg-clip-text text-transparent mb-0.5 sm:mb-1 md:mb-2">
+            <div className="text-xl sm:text-2xl md:text-4xl font-bold text-pokemon-blue mb-0.5 sm:mb-1 md:mb-2">
               {stats ? formatNumber(stats.totalVotes) : '0'}
             </div>
             <div className="text-xs sm:text-sm md:text-base text-gray-600">Total Votes Cast</div>
           </div>
 
           <div className="bg-gradient-to-br from-white to-light-gray rounded-lg p-2 sm:p-3 md:p-4 text-center shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100">
-            <div className="text-xl sm:text-2xl md:text-4xl font-bold bg-gradient-to-r from-pokemon-blue to-blue-600 bg-clip-text text-transparent mb-0.5 sm:mb-1 md:mb-2">
+            <div className="text-xl sm:text-2xl md:text-4xl font-bold text-pokemon-blue mb-0.5 sm:mb-1 md:mb-2">
               {stats ? formatNumber(stats.totalPokemon) : '0'}
             </div>
             <div className="text-xs sm:text-sm md:text-base text-gray-600">Pokémon Ranked</div>
