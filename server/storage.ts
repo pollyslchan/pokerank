@@ -4,7 +4,6 @@ import {
   PokemonWithRank, VoteWithPokemon,
   Stats
 } from "@shared/schema";
-import { format } from "date-fns";
 
 export interface IStorage {
   // Pokemon methods
@@ -33,7 +32,7 @@ export class MemStorage implements IStorage {
   voteCurrentId: number;
 
   constructor() {
-    this.pokemon = new Map();
+    this.pokemon = new Map<number, Pokemon>();
     this.votes = [];
     this.pokemonCurrentId = 1;
     this.voteCurrentId = 1;
@@ -44,9 +43,12 @@ export class MemStorage implements IStorage {
   }
 
   async getPokemonByPokedexNumber(pokedexNumber: number): Promise<Pokemon | undefined> {
-    return Array.from(this.pokemon.values()).find(
-      (pokemon) => pokemon.pokedexNumber === pokedexNumber
-    );
+    for (const pokemon of this.pokemon.values()) {
+      if (pokemon.pokedexNumber === pokedexNumber) {
+        return pokemon;
+      }
+    }
+    return undefined;
   }
 
   async getAllPokemon(): Promise<Pokemon[]> {
@@ -54,109 +56,44 @@ export class MemStorage implements IStorage {
   }
 
   async insertPokemon(insertPokemon: InsertPokemon): Promise<Pokemon> {
-    const id = this.pokemonCurrentId++;
+    // Check if the Pokemon already exists
+    const existingPokemon = await this.getPokemonByPokedexNumber(insertPokemon.pokedexNumber);
     
-    // Define valid Pokemon types
-    const validTypes = [
-      "Normal", "Fire", "Water", "Electric", "Grass", "Ice", "Fighting", "Poison", 
-      "Ground", "Flying", "Psychic", "Bug", "Rock", "Ghost", "Dragon", "Dark", 
-      "Steel", "Fairy"
-    ];
-    
-    // Ensure types are valid English type names, not Japanese Pokemon names
-    const sanitizedTypes = [];
-    
-    for (const type of insertPokemon.types) {
-      if (validTypes.includes(type)) {
-        sanitizedTypes.push(type);
-      } else {
-        // Check if this is a Pokemon with known types
-        const pokemonNumber = insertPokemon.pokedexNumber;
-        
-        // Define hardcoded types for problematic Pokemon
-        const hardcodedTypesByPokedexNumber: Record<number, string[]> = {
-          // Gen 1-4 starters
-          1: ["Grass", "Poison"], // Bulbasaur
-          4: ["Fire"], // Charmander
-          7: ["Water"], // Squirtle
-          152: ["Grass"], // Chikorita
-          155: ["Fire"], // Cyndaquil
-          158: ["Water"], // Totodile
-          252: ["Grass"], // Treecko
-          255: ["Fire"], // Torchic
-          258: ["Water"], // Mudkip
-          387: ["Grass"], // Turtwig
-          390: ["Fire"], // Chimchar
-          393: ["Water"], // Piplup
-          
-          // Gen 5+ starters
-          495: ["Grass"], // Snivy
-          498: ["Fire"], // Tepig
-          501: ["Water"], // Oshawott
-          650: ["Grass"], // Chespin
-          653: ["Fire"], // Fennekin
-          656: ["Water"], // Froakie
-          722: ["Grass", "Flying"], // Rowlet
-          725: ["Fire"], // Litten
-          728: ["Water"], // Popplio
-          810: ["Grass"], // Grookey
-          813: ["Fire"], // Scorbunny
-          816: ["Water"], // Sobble
-          906: ["Grass"], // Sprigatito
-          909: ["Fire"], // Fuecoco
-          912: ["Water"], // Quaxly
-          
-          // Other popular Pokemon
-          25: ["Electric"], // Pikachu
-          150: ["Psychic"], // Mewtwo
-          300: ["Normal"], // Skitty
-          800: ["Psychic"], // Necrozma
-        };
-        
-        // Use hardcoded types if available
-        if (hardcodedTypesByPokedexNumber[pokemonNumber]) {
-          // Clear sanitized types and use all hardcoded ones, then break to avoid duplicates
-          sanitizedTypes.push(...hardcodedTypesByPokedexNumber[pokemonNumber]);
-          break;
-        }
-      }
+    if (existingPokemon) {
+      // Update existing Pokemon
+      const updatedPokemon: Pokemon = {
+        ...existingPokemon,
+        name: insertPokemon.name,
+        imageUrl: insertPokemon.imageUrl,
+        types: insertPokemon.types,
+        rating: insertPokemon.rating || existingPokemon.rating,
+        wins: insertPokemon.wins !== undefined ? insertPokemon.wins : existingPokemon.wins,
+        losses: insertPokemon.losses !== undefined ? insertPokemon.losses : existingPokemon.losses
+      };
+      
+      this.pokemon.set(existingPokemon.id, updatedPokemon);
+      return updatedPokemon;
     }
     
-    // Use Normal as a fallback if no valid types were found
-    const finalTypes = sanitizedTypes.length > 0 ? sanitizedTypes : ["Normal"];
-    
-    // Fix names for key Pokemon
-    const knownPokemonNames: Record<number, string> = {
-      1: "Bulbasaur", 4: "Charmander", 7: "Squirtle", 25: "Pikachu",
-      150: "Mewtwo", 152: "Chikorita", 155: "Cyndaquil", 158: "Totodile",
-      252: "Treecko", 255: "Torchic", 258: "Mudkip", 300: "Skitty",
-      387: "Turtwig", 390: "Chimchar", 393: "Piplup",
-      495: "Snivy", 498: "Tepig", 501: "Oshawott", 
-      650: "Chespin", 653: "Fennekin", 656: "Froakie",
-      722: "Rowlet", 725: "Litten", 728: "Popplio",
-      800: "Necrozma", 810: "Grookey", 813: "Scorbunny", 816: "Sobble",
-      906: "Sprigatito", 909: "Fuecoco", 912: "Quaxly"
-    };
-    
-    // Use hardcoded name if available
-    const name = knownPokemonNames[insertPokemon.pokedexNumber] || insertPokemon.name;
-    
+    // Create new Pokemon
     const pokemon: Pokemon = { 
-      ...insertPokemon, 
-      id,
-      name, // Use fixed name
-      types: finalTypes, // Use fixed types
+      id: this.pokemonCurrentId++,
+      pokedexNumber: insertPokemon.pokedexNumber,
+      name: insertPokemon.name,
+      imageUrl: insertPokemon.imageUrl,
+      types: insertPokemon.types,
       rating: insertPokemon.rating || 1500,
       wins: insertPokemon.wins || 0,
       losses: insertPokemon.losses || 0
     };
     
-    this.pokemon.set(id, pokemon);
+    this.pokemon.set(pokemon.id, pokemon);
     return pokemon;
   }
 
   async updatePokemonRating(id: number, rating: number, isWinner: boolean): Promise<Pokemon> {
     const pokemon = this.pokemon.get(id);
+    
     if (!pokemon) {
       throw new Error(`Pokemon with id ${id} not found`);
     }
@@ -173,262 +110,39 @@ export class MemStorage implements IStorage {
   }
 
   async getRandomPokemonPair(): Promise<[Pokemon, Pokemon]> {
-    // Get all Pokemon
     const allPokemon = Array.from(this.pokemon.values());
+    
     if (allPokemon.length < 2) {
       throw new Error("Not enough Pokemon to create a pair");
     }
     
-    // Define valid Pokemon types
-    const validTypes = [
-      "Normal", "Fire", "Water", "Electric", "Grass", "Ice", "Fighting", "Poison", 
-      "Ground", "Flying", "Psychic", "Bug", "Rock", "Ghost", "Dragon", "Dark", 
-      "Steel", "Fairy"
-    ];
+    const indices = new Set<number>();
+    while (indices.size < 2) {
+      indices.add(Math.floor(Math.random() * allPokemon.length));
+    }
     
-    // Fix problematic Pokemon on-the-fly
-    const fixedPokemon: Pokemon[] = allPokemon.map(pokemon => {
-      // Check if this Pokemon has valid types
-      const hasValidTypes = pokemon.types.every(type => validTypes.includes(type));
-      
-      if (hasValidTypes) {
-        return pokemon; // Already valid
-      }
-      
-      // Make a deep copy of the Pokemon to avoid modifying the original
-      const fixedPoke = {...pokemon};
-      
-      // Define hardcoded types for problematic Pokemon
-      const hardcodedTypesByPokedexNumber: Record<number, string[]> = {
-        // Gen 1-4 starters
-        1: ["Grass", "Poison"], // Bulbasaur
-        4: ["Fire"], // Charmander
-        7: ["Water"], // Squirtle
-        152: ["Grass"], // Chikorita
-        155: ["Fire"], // Cyndaquil
-        158: ["Water"], // Totodile
-        252: ["Grass"], // Treecko
-        255: ["Fire"], // Torchic
-        258: ["Water"], // Mudkip
-        387: ["Grass"], // Turtwig
-        390: ["Fire"], // Chimchar
-        393: ["Water"], // Piplup
-        
-        // Gen 5+ starters
-        495: ["Grass"], // Snivy
-        498: ["Fire"], // Tepig
-        501: ["Water"], // Oshawott
-        650: ["Grass"], // Chespin
-        653: ["Fire"], // Fennekin
-        656: ["Water"], // Froakie
-        722: ["Grass", "Flying"], // Rowlet
-        725: ["Fire"], // Litten
-        728: ["Water"], // Popplio
-        810: ["Grass"], // Grookey
-        813: ["Fire"], // Scorbunny
-        816: ["Water"], // Sobble
-        906: ["Grass"], // Sprigatito
-        909: ["Fire"], // Fuecoco
-        912: ["Water"], // Quaxly
-        
-        // Other popular Pokemon
-        25: ["Electric"], // Pikachu
-        150: ["Psychic"], // Mewtwo
-        300: ["Normal"], // Skitty
-        800: ["Psychic"], // Necrozma
-        
-        // Multiples of 50
-        50: ["Ground"], // Diglett
-        100: ["Electric"], // Voltorb
-        200: ["Ghost"], // Misdreavus
-        250: ["Fire", "Flying"], // Ho-Oh
-        350: ["Water"], // Milotic
-        400: ["Normal", "Water"], // Bibarel
-        450: ["Ground"], // Hippowdon
-        500: ["Fire", "Fighting"], // Emboar
-        550: ["Water"], // Basculin
-        600: ["Steel"], // Klinklang
-        650: ["Grass"], // Chespin
-        700: ["Fairy"], // Sylveon
-        750: ["Ground"], // Mudsdale
-        800: ["Psychic"], // Necrozma
-        850: ["Fire", "Bug"], // Sizzlipede
-        900: ["Rock"], // Klawf
-        950: ["Dragon", "Water"], // Tatsugiri
-        1000: ["Steel", "Ghost"], // Gholdengo
-      };
-      
-      // Use hardcoded types if available
-      if (hardcodedTypesByPokedexNumber[pokemon.pokedexNumber]) {
-        fixedPoke.types = [...hardcodedTypesByPokedexNumber[pokemon.pokedexNumber]];
-      } else {
-        // Otherwise, use Normal as a fallback
-        fixedPoke.types = ["Normal"];
-      }
-      
-      // Also fix names
-      const knownPokemonNames: Record<number, string> = {
-        1: "Bulbasaur", 4: "Charmander", 7: "Squirtle", 25: "Pikachu",
-        150: "Mewtwo", 152: "Chikorita", 155: "Cyndaquil", 158: "Totodile",
-        252: "Treecko", 255: "Torchic", 258: "Mudkip", 300: "Skitty",
-        387: "Turtwig", 390: "Chimchar", 393: "Piplup",
-        495: "Snivy", 498: "Tepig", 501: "Oshawott", 
-        650: "Chespin", 653: "Fennekin", 656: "Froakie",
-        722: "Rowlet", 725: "Litten", 728: "Popplio",
-        800: "Necrozma", 810: "Grookey", 813: "Scorbunny", 816: "Sobble",
-        906: "Sprigatito", 909: "Fuecoco", 912: "Quaxly"
-      };
-      
-      // Use hardcoded name if available
-      if (knownPokemonNames[pokemon.pokedexNumber]) {
-        fixedPoke.name = knownPokemonNames[pokemon.pokedexNumber];
-      }
-      
-      // Store the fixed Pokemon back in the Map to avoid having to fix it again
-      this.pokemon.set(pokemon.id, fixedPoke);
-      
-      return fixedPoke;
-    });
-    
-    // Get two different random Pokemon
-    const randomIndex1 = Math.floor(Math.random() * fixedPokemon.length);
-    let randomIndex2 = Math.floor(Math.random() * (fixedPokemon.length - 1));
-    if (randomIndex2 >= randomIndex1) randomIndex2++;
-    
-    return [fixedPokemon[randomIndex1], fixedPokemon[randomIndex2]];
+    const indexArray = Array.from(indices);
+    return [allPokemon[indexArray[0]], allPokemon[indexArray[1]]];
   }
 
   async getTopRankedPokemon(limit: number): Promise<PokemonWithRank[]> {
-    // Get all Pokemon
     const allPokemon = Array.from(this.pokemon.values());
     
-    // Define valid Pokemon types
-    const validTypes = [
-      "Normal", "Fire", "Water", "Electric", "Grass", "Ice", "Fighting", "Poison", 
-      "Ground", "Flying", "Psychic", "Bug", "Rock", "Ghost", "Dragon", "Dark", 
-      "Steel", "Fairy"
-    ];
-    
-    // Fix problematic Pokemon on-the-fly
-    const fixedPokemon: Pokemon[] = allPokemon.map(pokemon => {
-      // Check if this Pokemon has valid types
-      const hasValidTypes = pokemon.types.every(type => validTypes.includes(type));
-      
-      if (hasValidTypes) {
-        return pokemon; // Already valid
-      }
-      
-      // Make a deep copy of the Pokemon to avoid modifying the original
-      const fixedPoke = {...pokemon};
-      
-      // Define hardcoded types for problematic Pokemon
-      const hardcodedTypesByPokedexNumber: Record<number, string[]> = {
-        // Gen 1-4 starters
-        1: ["Grass", "Poison"], // Bulbasaur
-        4: ["Fire"], // Charmander
-        7: ["Water"], // Squirtle
-        152: ["Grass"], // Chikorita
-        155: ["Fire"], // Cyndaquil
-        158: ["Water"], // Totodile
-        252: ["Grass"], // Treecko
-        255: ["Fire"], // Torchic
-        258: ["Water"], // Mudkip
-        387: ["Grass"], // Turtwig
-        390: ["Fire"], // Chimchar
-        393: ["Water"], // Piplup
-        
-        // Gen 5+ starters
-        495: ["Grass"], // Snivy
-        498: ["Fire"], // Tepig
-        501: ["Water"], // Oshawott
-        650: ["Grass"], // Chespin
-        653: ["Fire"], // Fennekin
-        656: ["Water"], // Froakie
-        722: ["Grass", "Flying"], // Rowlet
-        725: ["Fire"], // Litten
-        728: ["Water"], // Popplio
-        810: ["Grass"], // Grookey
-        813: ["Fire"], // Scorbunny
-        816: ["Water"], // Sobble
-        906: ["Grass"], // Sprigatito
-        909: ["Fire"], // Fuecoco
-        912: ["Water"], // Quaxly
-        
-        // Other popular Pokemon
-        25: ["Electric"], // Pikachu
-        150: ["Psychic"], // Mewtwo
-        300: ["Normal"], // Skitty
-        800: ["Psychic"], // Necrozma
-        
-        // Multiples of 50
-        50: ["Ground"], // Diglett
-        100: ["Electric"], // Voltorb
-        200: ["Ghost"], // Misdreavus
-        250: ["Fire", "Flying"], // Ho-Oh
-        350: ["Water"], // Milotic
-        400: ["Normal", "Water"], // Bibarel
-        450: ["Ground"], // Hippowdon
-        500: ["Fire", "Fighting"], // Emboar
-        550: ["Water"], // Basculin
-        600: ["Steel"], // Klinklang
-        650: ["Grass"], // Chespin
-        700: ["Fairy"], // Sylveon
-        750: ["Ground"], // Mudsdale
-        800: ["Psychic"], // Necrozma
-        850: ["Fire", "Bug"], // Sizzlipede
-        900: ["Rock"], // Klawf
-        950: ["Dragon", "Water"], // Tatsugiri
-        1000: ["Steel", "Ghost"], // Gholdengo
-      };
-      
-      // Use hardcoded types if available
-      if (hardcodedTypesByPokedexNumber[pokemon.pokedexNumber]) {
-        fixedPoke.types = [...hardcodedTypesByPokedexNumber[pokemon.pokedexNumber]];
-      } else {
-        // Otherwise, use Normal as a fallback
-        fixedPoke.types = ["Normal"];
-      }
-      
-      // Also fix names
-      const knownPokemonNames: Record<number, string> = {
-        1: "Bulbasaur", 4: "Charmander", 7: "Squirtle", 25: "Pikachu",
-        150: "Mewtwo", 152: "Chikorita", 155: "Cyndaquil", 158: "Totodile",
-        252: "Treecko", 255: "Torchic", 258: "Mudkip", 300: "Skitty",
-        387: "Turtwig", 390: "Chimchar", 393: "Piplup",
-        495: "Snivy", 498: "Tepig", 501: "Oshawott", 
-        650: "Chespin", 653: "Fennekin", 656: "Froakie",
-        722: "Rowlet", 725: "Litten", 728: "Popplio",
-        800: "Necrozma", 810: "Grookey", 813: "Scorbunny", 816: "Sobble",
-        906: "Sprigatito", 909: "Fuecoco", 912: "Quaxly"
-      };
-      
-      // Use hardcoded name if available
-      if (knownPokemonNames[pokemon.pokedexNumber]) {
-        fixedPoke.name = knownPokemonNames[pokemon.pokedexNumber];
-      }
-      
-      // Store the fixed Pokemon back in the Map to avoid having to fix it again
-      this.pokemon.set(pokemon.id, fixedPoke);
-      
-      return fixedPoke;
-    });
-    
-    // Sort by rating in descending order
-    const sortedPokemon = fixedPokemon.sort((a, b) => b.rating - a.rating);
-    
-    // Add rank to each Pokemon
-    return sortedPokemon.slice(0, limit).map((pokemon, index) => ({
-      ...pokemon,
-      rank: index + 1
-    }));
+    return allPokemon
+      .sort((a, b) => b.rating - a.rating)
+      .slice(0, limit)
+      .map((pokemon, index) => ({
+        ...pokemon,
+        rank: index + 1
+      }));
   }
 
   async insertVote(insertVote: InsertVote): Promise<Vote> {
-    const id = this.voteCurrentId++;
     const vote: Vote = { 
-      ...insertVote, 
-      id, 
-      timestamp: new Date() 
+      id: this.voteCurrentId++,
+      winnerId: insertVote.winnerId,
+      loserId: insertVote.loserId,
+      timestamp: new Date()
     };
     
     this.votes.push(vote);
@@ -436,20 +150,20 @@ export class MemStorage implements IStorage {
   }
 
   async getRecentVotes(limit: number): Promise<VoteWithPokemon[]> {
-    // Sort votes by timestamp in descending order
-    const sortedVotes = [...this.votes].sort(
-      (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
-    );
+    // Sort votes by timestamp in descending order and take the most recent ones
+    const recentVotes = [...this.votes]
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+      .slice(0, limit);
     
-    const recentVotes = sortedVotes.slice(0, limit);
+    // Prepare the results with Pokemon data
+    const result: VoteWithPokemon[] = [];
     
-    // Prepare votes with related Pokemon data
-    return recentVotes.map(vote => {
+    for (const vote of recentVotes) {
       const winner = this.pokemon.get(vote.winnerId);
       const loser = this.pokemon.get(vote.loserId);
       
       if (!winner || !loser) {
-        throw new Error(`Pokemon with id ${!winner ? vote.winnerId : vote.loserId} not found`);
+        continue; // Skip if Pokemon not found
       }
       
       // Calculate time ago
@@ -469,13 +183,15 @@ export class MemStorage implements IStorage {
         timeAgo = `${days} day${days === 1 ? '' : 's'} ago`;
       }
       
-      return {
+      result.push({
         ...vote,
         winner,
         loser,
         timeAgo
-      };
-    });
+      });
+    }
+    
+    return result;
   }
 
   async clearAllPokemon(): Promise<void> {
@@ -487,23 +203,73 @@ export class MemStorage implements IStorage {
   async clearAllVotes(): Promise<void> {
     this.votes = [];
     this.voteCurrentId = 1;
-    console.log("Cleared all vote data");
     
     // Reset all Pokemon win/loss records
-    for (const pokemon of this.pokemon.values()) {
-      pokemon.wins = 0;
-      pokemon.losses = 0;
-      pokemon.rating = 1500; // Reset to default rating
+    for (const [id, pokemon] of this.pokemon.entries()) {
+      this.pokemon.set(id, {
+        ...pokemon,
+        wins: 0,
+        losses: 0,
+        rating: 1500 // Reset to default rating
+      });
     }
+    console.log("Cleared all vote data");
   }
   
   async getStats(): Promise<Stats> {
-    const allPokemon = Array.from(this.pokemon.values());
+    // Calculate stats
+    const totalPokemon = this.pokemon.size;
+    const totalVotes = this.votes.length;
+    
+    // Calculate votes from today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const votesToday = this.votes.filter(vote => {
+      const voteDate = new Date(vote.timestamp);
+      return voteDate >= today;
+    }).length;
     
     // Calculate win rates for each type
     const typeStats: Record<string, { wins: number; total: number }> = {};
     
-    // Map of Pokémon types to colors
+    // Initialize type stats for all unique types
+    const allTypes = new Set<string>();
+    for (const pokemon of this.pokemon.values()) {
+      for (const type of pokemon.types) {
+        allTypes.add(type);
+      }
+    }
+    
+    allTypes.forEach(type => {
+      typeStats[type] = { wins: 0, total: 0 };
+    });
+    
+    // Process all votes to calculate type stats
+    for (const vote of this.votes) {
+      const winner = this.pokemon.get(vote.winnerId);
+      const loser = this.pokemon.get(vote.loserId);
+      
+      if (!winner || !loser) {
+        continue;
+      }
+      
+      // Increment win count for each type of the winner
+      for (const type of winner.types) {
+        if (typeStats[type]) {
+          typeStats[type].wins++;
+          typeStats[type].total++;
+        }
+      }
+      
+      // Increment total count for each type of the loser
+      for (const type of loser.types) {
+        if (typeStats[type]) {
+          typeStats[type].total++;
+        }
+      }
+    }
+    
+    // Map type colors
     const typeColors: Record<string, string> = {
       "Normal": "bg-gray-400",
       "Fire": "bg-orange-500",
@@ -525,55 +291,29 @@ export class MemStorage implements IStorage {
       "Fairy": "bg-pink-300",
     };
     
-    // Collect win rates by type
-    for (const vote of this.votes) {
-      const winner = this.pokemon.get(vote.winnerId);
-      const loser = this.pokemon.get(vote.loserId);
-      
-      if (winner && loser) {
-        for (const type of winner.types) {
-          if (!typeStats[type]) {
-            typeStats[type] = { wins: 0, total: 0 };
-          }
-          typeStats[type].wins += 1;
-          typeStats[type].total += 1;
-        }
-        
-        for (const type of loser.types) {
-          if (!typeStats[type]) {
-            typeStats[type] = { wins: 0, total: 0 };
-          }
-          typeStats[type].total += 1;
-        }
-      }
-    }
-    
     // Calculate win rates
-    const typeWinRates = Object.entries(typeStats)
-      .filter(([_, stats]) => stats.total >= 5) // Only include types with enough data
-      .map(([type, stats]) => ({
+    const typeWinRates = Object.keys(typeStats)
+      .filter(type => typeStats[type].total > 0)
+      .map(type => ({
         type,
-        winRate: stats.total > 0 ? (stats.wins / stats.total) * 100 : 0,
-        color: typeColors[type] || "bg-gray-400" // Fallback color
+        winRate: typeStats[type].wins / typeStats[type].total,
+        color: typeColors[type] || "bg-gray-400"
       }))
-      .sort((a, b) => b.winRate - a.winRate)
-      .slice(0, 8); // Limit to top 8 types
+      .sort((a, b) => b.winRate - a.winRate);
     
-    // Calculate votes from today
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const votesToday = this.votes.filter(vote => {
-      const voteDate = new Date(vote.timestamp);
-      return voteDate >= today;
-    }).length;
-
     return {
-      totalVotes: this.votes.length,
-      totalPokemon: this.pokemon.size,
+      totalVotes,
+      totalPokemon,
       votesToday,
-      typeWinRates,
+      typeWinRates
     };
   }
 }
 
-export const storage = new MemStorage();
+// Import the DrizzleStorage class for persistent PostgreSQL database storage
+import { DrizzleStorage } from "./db-storage";
+
+// Use PostgreSQL storage if DATABASE_URL is set, otherwise use MemStorage for development/testing
+export const storage = process.env.DATABASE_URL 
+  ? new DrizzleStorage()
+  : new MemStorage();
