@@ -210,14 +210,38 @@ async function fetchAllPokemonData(): Promise<Map<number, { name: string, types:
       148: { name: "Dragonair", types: ["Dragon"] },
       149: { name: "Dragonite", types: ["Dragon", "Flying"] },
       150: { name: "Mewtwo", types: ["Psychic"] },
+      // Gen 2 Pokémon section below
       151: { name: "Mew", types: ["Psychic"] },
       
       // Gen 2 starters and important Pokemon
-      152: { name: "Chikorita", types: ["Grass"] },
-      155: { name: "Cyndaquil", types: ["Fire"] },
-      158: { name: "Totodile", types: ["Water"] },
       196: { name: "Espeon", types: ["Psychic"] },
       197: { name: "Umbreon", types: ["Dark"] },
+      
+      // Gen 2 starters and evolutionary lines
+      152: { name: "Chikorita", types: ["Grass"] },
+      153: { name: "Bayleef", types: ["Grass"] },
+      154: { name: "Meganium", types: ["Grass"] },
+      155: { name: "Cyndaquil", types: ["Fire"] },
+      156: { name: "Quilava", types: ["Fire"] },
+      157: { name: "Typhlosion", types: ["Fire"] },
+      158: { name: "Totodile", types: ["Water"] },
+      159: { name: "Croconaw", types: ["Water"] },
+      160: { name: "Feraligatr", types: ["Water"] },
+      
+      // Gen 2 early route Pokémon
+      161: { name: "Sentret", types: ["Normal"] },
+      162: { name: "Furret", types: ["Normal"] },
+      163: { name: "Hoothoot", types: ["Normal", "Flying"] },
+      164: { name: "Noctowl", types: ["Normal", "Flying"] },
+      165: { name: "Ledyba", types: ["Bug", "Flying"] },
+      166: { name: "Ledian", types: ["Bug", "Flying"] },
+      167: { name: "Spinarak", types: ["Bug", "Poison"] },
+      168: { name: "Ariados", types: ["Bug", "Poison"] },
+      169: { name: "Crobat", types: ["Poison", "Flying"] },
+      170: { name: "Chinchou", types: ["Water", "Electric"] },
+      171: { name: "Lanturn", types: ["Water", "Electric"] },
+      
+      // Gen 2 legendaries
       243: { name: "Raikou", types: ["Electric"] },
       244: { name: "Entei", types: ["Fire"] },
       245: { name: "Suicune", types: ["Water"] },
