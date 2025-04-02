@@ -32,11 +32,11 @@ const validTypes = [
 ];
 
 /**
- * Fetches Pokemon data from Wikipedia and PokeAPI
+ * Fetches Pokemon data from the PokeAPI
  * @returns Promise with all Pokemon data with names and types
  */
 async function fetchAllPokemonData(): Promise<Map<number, { name: string, types: string[] }>> {
-  console.log('Fetching Pokemon data from Wikipedia and PokeAPI...');
+  console.log('Fetching Pokemon data from PokeAPI...');
   const pokemonMap = new Map<number, { name: string, types: string[] }>();
   
   try {
@@ -53,20 +53,8 @@ async function fetchAllPokemonData(): Promise<Map<number, { name: string, types:
       { title: "Generation IX", start: 906, end: 1025 }
     ];
     
-    // First, try to fetch data from Wikipedia, which should be the most comprehensive
-    console.log('Fetching from Wikipedia first...');
-    const wikipediaData = await fetchPokemonFromWikipedia();
-    
-    // Add all Wikipedia data to our map
-    wikipediaData.forEach((pokemonData, pokedexNumber) => {
-      pokemonMap.set(pokedexNumber, pokemonData);
-    });
-    
-    console.log(`Got ${pokemonMap.size} Pokémon from Wikipedia`);
-    
-    // As a fallback, use our hardcoded list of known Pokémon with their types
+    // Create a hardcoded map of all known Pokémon with their types
     // This covers the first 151 Pokémon (Gen 1) plus other important ones
-    console.log('Adding hardcoded Pokémon data for any missing entries...');
     const knownPokemon: Record<number, { name: string, types: string[] }> = {
       // Gen 1 (first 151 Pokémon)
       1: { name: "Bulbasaur", types: ["Grass", "Poison"] },
@@ -340,39 +328,33 @@ async function fetchAllPokemonData(): Promise<Map<number, { name: string, types:
       pokemonMap.set(pokedexNumber, pokemonData);
     }
     
-    // Count how many Pokémon we still need to fetch
-    let missingCount = 0;
-    for (let i = 1; i <= 1025; i++) {
-      if (!pokemonMap.has(i)) {
-        missingCount++;
-      }
-    }
-    
     // Batch processing for PokeAPI requests to avoid overloading
-    console.log(`Still missing ${missingCount} Pokémon. Fetching from PokeAPI...`);
+    // We'll request Pokemon in batches of 10
+    console.log("Fetching additional Pokemon data from PokeAPI...");
     
     // Create batches of Pokemon IDs to fetch
     const batchSize = 5; // Small batch size to avoid rate limits
     const batches: number[][] = [];
     
-    // Create batches of all missing Pokémon
-    // We're being more aggressive now since we've already tried Wikipedia
     for (let i = 1; i <= 1025; i++) {
       // Skip if we already have this Pokemon
       if (pokemonMap.has(i)) continue;
       
-      // Find existing batch with space or create new batch
-      let added = false;
-      for (const batch of batches) {
-        if (batch.length < batchSize) {
-          batch.push(i);
-          added = true;
-          break;
+      // Only fetch every 10th Pokemon to reduce API load, unless it's a milestone number
+      if (i <= 100 || i % 10 === 0 || i % 50 === 0 || i >= 900) {
+        // Find existing batch with space or create new batch
+        let added = false;
+        for (const batch of batches) {
+          if (batch.length < batchSize) {
+            batch.push(i);
+            added = true;
+            break;
+          }
         }
-      }
-      
-      if (!added) {
-        batches.push([i]);
+        
+        if (!added) {
+          batches.push([i]);
+        }
       }
     }
     
@@ -496,93 +478,6 @@ function getGenericPokemonName(pokedexNumber: number, generation: string): strin
     return `${commonPrefixes[prefixIndex]}-${commonSuffixes[suffixIndex]}`;
   } else {
     return `Pokémon #${pokedexNumber} (Gen ${genNumber})`;
-  }
-}
-
-/**
- * Fetches Pokémon data from Wikipedia
- * @returns Promise with a map of all Pokémon data from Wikipedia
- */
-async function fetchPokemonFromWikipedia(): Promise<Map<number, { name: string, types: string[] }>> {
-  const pokemonMap = new Map<number, { name: string, types: string[] }>();
-  
-  try {
-    console.log('Fetching Pokémon list from Wikipedia...');
-    
-    // We'll use the Wikipedia list of Pokémon, which has a comprehensive table of all Pokémon
-    const response = await fetch('https://en.wikipedia.org/wiki/List_of_Pok%C3%A9mon');
-    if (!response.ok) {
-      console.error(`Error fetching Wikipedia page: ${response.status} ${response.statusText}`);
-      return pokemonMap;
-    }
-    
-    const html = await response.text();
-    const $ = cheerio.load(html);
-    
-    // Find all the generation tables on the page
-    // Each generation has a table with all Pokémon from that generation
-    const generationTables = $('table.wikitable');
-    console.log(`Found ${generationTables.length} generation tables on Wikipedia`);
-    
-    generationTables.each((tableIndex, table) => {
-      // Process each row in the table
-      $(table).find('tr').each((rowIndex, row) => {
-        // Skip the header row
-        if (rowIndex === 0) return;
-        
-        // Extract the Pokémon data
-        const cells = $(row).find('td');
-        if (cells.length >= 3) {
-          // The first cell usually contains the Pokédex number
-          const pokedexNumberText = $(cells[0]).text().trim();
-          // The second cell usually contains the name
-          const nameElement = $(cells[1]).find('a').first();
-          // Types are usually in later cells
-          const typeElements = $(cells).find('a[title*="type"], a[href*="type"]');
-          
-          // Extract the Pokédex number
-          const pokedexMatch = pokedexNumberText.match(/(\d+)/);
-          if (pokedexMatch) {
-            const pokedexNumber = parseInt(pokedexMatch[1]);
-            
-            // Extract the name
-            let name = nameElement.text().trim();
-            
-            // Some Pokémon names have special characters or formatting
-            name = name.replace(/\s+/g, ' ').trim();
-            if (name) {
-              // Extract the types
-              const types: string[] = [];
-              typeElements.each((i, elem) => {
-                const typeText = $(elem).text().trim();
-                if (typeText && Object.values(typeNameMapping).includes(typeText)) {
-                  types.push(typeText);
-                } else if (typeText && Object.keys(typeNameMapping).includes(typeText.toLowerCase())) {
-                  types.push(typeNameMapping[typeText.toLowerCase()]);
-                }
-              });
-              
-              // Only add if we have a valid Pokédex number and name
-              if (pokedexNumber > 0 && pokedexNumber <= 1025 && name) {
-                // Ensure we have at least one valid type
-                if (types.length === 0) {
-                  types.push("Normal");
-                }
-                
-                // Store in our map
-                pokemonMap.set(pokedexNumber, { name, types });
-              }
-            }
-          }
-        }
-      });
-    });
-    
-    console.log(`Extracted ${pokemonMap.size} Pokémon from Wikipedia`);
-    return pokemonMap;
-  } catch (error) {
-    console.error('Error fetching Pokémon from Wikipedia:', error);
-    return pokemonMap; // Return whatever we've got
   }
 }
 
