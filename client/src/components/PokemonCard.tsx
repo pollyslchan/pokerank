@@ -38,37 +38,37 @@ export default function PokemonCard({ pokemon, onVote, isLoading, voteStatus }: 
   };
 
   return (
-    <div className="pokemon-card flex-1 bg-gradient-to-b from-white to-light-gray rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 w-full max-w-xs flex flex-col border border-gray-100">
-      <div className="relative">
+    <div className="pokemon-card ultraball-card flex-1 w-full max-w-xs flex flex-col hover-scale overflow-hidden">
+      <div className="relative z-10">
         <img 
           src={pokemon.imageUrl} 
           alt={pokemon.name} 
-          className="w-full h-32 sm:h-40 md:h-48 object-contain bg-white p-2 sm:p-4 transition-transform duration-300 hover:scale-110" 
+          className="w-full h-36 sm:h-44 md:h-52 object-contain p-2 sm:p-4 transition-transform duration-300 hover:scale-110 animate-float z-10" 
           onError={(e) => {
             // Fallback if image fails to load
             (e.target as HTMLImageElement).src = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1200px-Pok%C3%A9_Ball_icon.svg.png";
           }}
         />
-        <span className="absolute top-2 left-2 bg-pokemon-blue text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 sm:py-1 rounded-full">
+        <span className="absolute top-2 left-2 bg-ultraball-black text-ultraball-yellow text-[10px] sm:text-xs font-bold px-2 py-0.5 sm:py-1 rounded-full border-2 border-ultraball-yellow z-20">
           #{pokemon.pokedexNumber.toString().padStart(3, '0')}
         </span>
       </div>
       
-      <div className="p-2 sm:p-3 md:p-4 flex flex-col flex-grow">
-        <h4 className="text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2 text-center">{pokemon.name}</h4>
+      <div className="p-2 sm:p-3 md:p-4 flex flex-col flex-grow relative z-10">
+        <h4 className="text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2 text-center text-ultraball-black">{pokemon.name}</h4>
         
         <div className="flex justify-center flex-wrap gap-1 mb-1 sm:mb-2 md:mb-3">
           {pokemon.types.map((type, index) => (
             <span 
               key={index} 
-              className={`px-2 py-0.5 text-[10px] sm:text-xs ${typeColors[type] || 'bg-gray-400'} text-white rounded-full`}
+              className={`px-2 py-0.5 text-[10px] sm:text-xs ${typeColors[type] || 'bg-gray-400'} text-white rounded-full shadow-md`}
             >
               {type}
             </span>
           ))}
         </div>
         
-        <div className="text-center text-[10px] sm:text-xs md:text-sm text-gray-600 mb-1 sm:mb-2 md:mb-3 flex-grow">
+        <div className="text-center text-[10px] sm:text-xs md:text-sm text-gray-800 mb-1 sm:mb-2 md:mb-3 flex-grow bg-white/80 rounded-lg p-2 shadow-inner">
           <p>Current Rank: <span className="font-semibold">{pokemon.rank || 'N/A'}</span></p>
           <p>Rating: <span className="font-semibold">{pokemon.rating}</span></p>
           <p>Record: <span className="font-semibold">{pokemon.wins}-{pokemon.losses}</span></p>
@@ -77,11 +77,11 @@ export default function PokemonCard({ pokemon, onVote, isLoading, voteStatus }: 
         <Button
           onClick={handleVote}
           disabled={isLoading || voteStatus !== "idle"}
-          className={`vote-button w-full py-2 sm:py-3 md:py-4 font-bold rounded-lg shadow-lg transition ${
+          className={`ultraball-button w-full py-2 sm:py-3 md:py-4 font-bold ${
             voteStatus === "voted" 
-              ? "bg-pokemon-blue hover:bg-pokemon-blue/90" 
-              : "bg-pokemon-blue hover:bg-pokemon-blue/90"
-          } text-xs sm:text-sm md:text-base text-white`}
+              ? "bg-ultraball-yellow text-ultraball-black" 
+              : "bg-ultraball-black text-white hover:bg-ultraball-yellow hover:text-ultraball-black"
+          } text-xs sm:text-sm md:text-base transform hover:-translate-y-1 transition-all duration-300`}
         >
           {isLoading ? (
             <>

@@ -18,15 +18,17 @@ export default function Header() {
   ];
 
   return (
-    <header className="bg-pokemon-red text-white shadow-md sticky top-0 z-50">
+    <header className="bg-ultraball-black text-white shadow-md sticky top-0 z-50 border-b-4 border-ultraball-yellow">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <div className="flex items-center">
-          <img 
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1200px-Pok%C3%A9_Ball_icon.svg.png" 
-            alt="Pokéball logo" 
-            className="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3" 
-          />
-          <span className="text-xl sm:text-2xl font-bold font-poppins">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 mr-2 sm:mr-3 relative animate-rotate hover-rotate">
+            <img 
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1200px-Pok%C3%A9_Ball_icon.svg.png" 
+              alt="Ultra Ball logo" 
+              className="w-full h-full" 
+            />
+          </div>
+          <span className="text-xl sm:text-2xl font-bold font-poppins text-ultraball-yellow animate-float">
             <Link href="/">PokéRank</Link>
           </span>
         </div>
@@ -37,7 +39,7 @@ export default function Header() {
             <Link 
               key={item.href} 
               href={item.href} 
-              className={`font-medium hover:underline ${location === item.href ? "underline" : ""}`}
+              className={`font-medium text-white hover:text-ultraball-yellow transition-colors duration-300 hover-scale px-3 py-1 ${location === item.href ? "text-ultraball-yellow border-b-2 border-ultraball-yellow" : ""}`}
             >
               {item.label}
             </Link>
@@ -69,13 +71,13 @@ export default function Header() {
       </div>
       
       {/* Mobile menu */}
-      <div className={`${isMobileMenuOpen ? 'block' : 'hidden'} md:hidden bg-pokemon-red pb-4`}>
+      <div className={`${isMobileMenuOpen ? 'block' : 'hidden'} md:hidden bg-ultraball-black pb-4 border-b-4 border-ultraball-yellow`}>
         <div className="container mx-auto px-4 flex flex-col space-y-2">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="text-white py-2 font-medium block" 
+              className="text-white hover:text-ultraball-yellow py-2 font-medium block transition-colors duration-300 hover-scale" 
               onClick={() => setIsMobileMenuOpen(false)}
             >
               {item.label}

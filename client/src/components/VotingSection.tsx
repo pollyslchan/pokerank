@@ -77,10 +77,22 @@ export default function VotingSection() {
   if (isLoadingMatchup && !matchup) {
     return (
       <section id="voting" className="mb-12">
-        <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg p-6 mb-8">
-          <h3 className="text-2xl font-bold mb-6 text-center">Current Matchup</h3>
-          <div className="flex justify-center items-center py-16">
-            <div className="loader w-12 h-12 border-4 border-gray-300 border-t-4 rounded-full"></div>
+        <div className="ultraball-card p-6 mb-8 overflow-visible relative">
+          <h3 className="text-2xl font-bold mb-6 text-center text-ultraball-black relative">
+            <span className="relative inline-block">
+              Current Matchup
+              <span className="absolute -bottom-2 left-0 right-0 h-1 bg-ultraball-yellow"></span>
+            </span>
+          </h3>
+          <div className="flex justify-center items-center py-16 relative z-10">
+            <div className="relative">
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1200px-Pok%C3%A9_Ball_icon.svg.png" 
+                alt="Loading" 
+                className="w-16 h-16 animate-bounce-slow animate-rotate" 
+              />
+              <p className="text-ultraball-black font-semibold mt-4 text-center">Loading matchup...</p>
+            </div>
           </div>
         </div>
       </section>
@@ -99,15 +111,20 @@ export default function VotingSection() {
 
   return (
     <section id="voting" className="mb-12">
-      <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg p-6 mb-8">
-        <h3 className="text-2xl font-bold mb-6 text-center">Current Matchup</h3>
+      <div className="ultraball-card p-6 mb-8 overflow-visible relative">
+        <h3 className="text-2xl font-bold mb-6 text-center text-ultraball-black relative">
+          <span className="relative inline-block">
+            Current Matchup
+            <span className="absolute -bottom-2 left-0 right-0 h-1 bg-ultraball-yellow"></span>
+          </span>
+        </h3>
 
         {matchup ? (
           <>
             {/* Matchup Container */}
-            <div className="flex flex-row gap-4 sm:gap-6 items-center justify-center w-full max-w-4xl mx-auto">
+            <div className="flex flex-row gap-4 sm:gap-8 items-center justify-center w-full max-w-4xl mx-auto relative z-10">
               {/* Left Pokemon */}
-              <div className="w-[45%] max-w-[250px]">
+              <div className="w-[45%] max-w-[250px] transform transition-all duration-300 hover:-translate-y-2 hover:rotate-[-2deg]">
                 <PokemonCard 
                   pokemon={matchup.pokemon1}
                   onVote={handleVote}
@@ -117,13 +134,13 @@ export default function VotingSection() {
               </div>
 
               {/* VS Divider */}
-              <div className="flex flex-col items-center mx-2">
-                <div className="bg-gradient-to-br from-pokemon-yellow to-yellow-500 text-dark-gray font-bold text-lg sm:text-2xl w-8 h-8 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-lg border-2 border-white animate-pulse">VS</div>
-                <div className="text-gray-500 text-[10px] sm:text-sm mt-1 font-medium">Choose One</div>
+              <div className="flex flex-col items-center mx-2 z-20">
+                <div className="bg-ultraball-black text-ultraball-yellow font-bold text-lg sm:text-2xl w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-lg border-2 border-ultraball-yellow animate-pulse">VS</div>
+                <div className="text-ultraball-black text-[10px] sm:text-sm mt-2 font-bold bg-white px-3 py-1 rounded-full shadow-md border border-ultraball-yellow">Choose One</div>
               </div>
 
               {/* Right Pokemon */}
-              <div className="w-[45%] max-w-[250px]">
+              <div className="w-[45%] max-w-[250px] transform transition-all duration-300 hover:-translate-y-2 hover:rotate-[2deg]">
                 <PokemonCard 
                   pokemon={matchup.pokemon2}
                   onVote={handleVote}
@@ -134,16 +151,15 @@ export default function VotingSection() {
             </div>
 
             {/* Skip Button */}
-            <div className="text-center mt-6">
+            <div className="text-center mt-8">
               <Button
                 onClick={handleSkip}
                 disabled={voteMutation.isPending || isLoadingMatchup}
-                variant="outline"
-                className="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold rounded-lg transition border-2 border-gray-300 shadow-md"
+                className="ultraball-button px-6 py-2 font-semibold transition-all duration-300"
               >
                 {isLoadingMatchup ? (
                   <>
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
@@ -160,7 +176,7 @@ export default function VotingSection() {
             <p className="text-gray-600">Could not load a matchup. Please try again later.</p>
             <Button
               onClick={() => refetchMatchup()}
-              className="mt-4 bg-pokemon-red hover:bg-red-700 text-white"
+              className="mt-4 ultraball-button"
             >
               Try Again
             </Button>
