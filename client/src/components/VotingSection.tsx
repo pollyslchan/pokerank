@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Pokemon } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
@@ -19,7 +19,14 @@ export default function VotingSection() {
   } = useQuery<{ pokemon1: Pokemon; pokemon2: Pokemon }>({ 
     queryKey: ['/api/matchup'],
     retry: 3,
+    staleTime: 0, // Always get fresh data
   });
+  
+  // Prefetch the next matchup when component mounts
+  useEffect(() => {
+    // Prefetch the next matchup to have it ready
+    queryClient.prefetchQuery({ queryKey: ['/api/matchup'] });
+  }, []);
 
   // Handle vote submission
   const voteMutation = useMutation({
@@ -34,14 +41,18 @@ export default function VotingSection() {
         description: "Your vote has been recorded. New matchup loaded.",
       });
 
-      // Reset voted state and load a new matchup after a short delay
+      // Reset voted state and load a new matchup with minimal delay
+      // Prefetch the next matchup immediately
+      queryClient.prefetchQuery({ queryKey: ['/api/matchup'] });
+      
+      // Reset state and update queries after a very short delay
       setTimeout(() => {
         setVotedPokemonId(null);
         queryClient.invalidateQueries({ queryKey: ['/api/matchup'] });
         queryClient.invalidateQueries({ queryKey: ['/api/rankings'] });
         queryClient.invalidateQueries({ queryKey: ['/api/votes/recent'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/stats'] });
-      }, 1500);
+        // Don't invalidate stats here as it's a heavy query that can be updated less frequently
+      }, 300);
     },
     onError: (error) => {
       // Show error toast
@@ -70,6 +81,9 @@ export default function VotingSection() {
 
   // Handle skip button click
   const handleSkip = () => {
+    // Prefetch the next matchup immediately to make it faster
+    queryClient.prefetchQuery({ queryKey: ['/api/matchup'] });
+    // Then load it
     refetchMatchup();
   };
 
