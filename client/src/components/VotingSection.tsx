@@ -119,12 +119,20 @@ export default function VotingSection() {
           </span>
         </h3>
 
-        {matchup ? (
+        {isLoadingMatchup ? (
+          <div className="min-h-[300px] flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-16 h-16 border-4 border-ultraball-yellow border-t-ultraball-black rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-lg font-semibold">Loading New Matchup...</p>
+              <p className="text-sm text-gray-600">Searching for the next Pokémon battle</p>
+            </div>
+          </div>
+        ) : matchup ? (
           <>
             {/* Matchup Container */}
-            <div className="flex flex-col sm:flex-row gap-8 sm:gap-4 items-center justify-center w-full max-w-5xl mx-auto relative z-10">
+            <div className="flex flex-row gap-2 xs:gap-4 sm:gap-6 items-center justify-center w-full max-w-5xl mx-auto relative z-10">
               {/* Left Pokemon */}
-              <div className="w-full sm:w-[45%] max-w-[220px] sm:max-w-[250px]">
+              <div className="w-[45%] max-w-[220px] sm:max-w-[250px]">
                 <PokemonCard 
                   pokemon={matchup.pokemon1}
                   onVote={handleVote}
@@ -134,16 +142,16 @@ export default function VotingSection() {
               </div>
 
               {/* VS Divider */}
-              <div className="flex flex-row sm:flex-col items-center justify-center order-first sm:order-none mb-0 sm:mb-0 z-20">
-                <div className="bg-ultraball-black text-ultraball-yellow font-bold text-lg sm:text-2xl w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-lg border-2 border-ultraball-yellow animate-pulse">VS</div>
-                <div className="text-ultraball-black text-xs sm:text-sm ml-2 sm:ml-0 sm:mt-2 font-bold bg-white px-3 py-1 rounded-full shadow-md border border-ultraball-yellow">
+              <div className="flex flex-col items-center justify-center z-20">
+                <div className="bg-ultraball-black text-ultraball-yellow font-bold text-lg sm:text-2xl w-10 h-10 xs:w-12 xs:h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-lg border-2 border-ultraball-yellow animate-pulse">VS</div>
+                <div className="text-ultraball-black text-[10px] xs:text-xs sm:text-sm mt-1 sm:mt-2 font-bold bg-white px-2 xs:px-3 py-1 rounded-full shadow-md border border-ultraball-yellow">
                   <span className="hidden sm:inline">Choose One</span>
                   <span className="sm:hidden">Swipe to Vote</span>
                 </div>
               </div>
 
               {/* Right Pokemon */}
-              <div className="w-full sm:w-[45%] max-w-[220px] sm:max-w-[250px]">
+              <div className="w-[45%] max-w-[220px] sm:max-w-[250px]">
                 <PokemonCard 
                   pokemon={matchup.pokemon2}
                   onVote={handleVote}

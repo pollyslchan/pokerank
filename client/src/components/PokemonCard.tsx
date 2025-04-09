@@ -150,7 +150,7 @@ export default function PokemonCard({ pokemon, onVote, isLoading, voteStatus }: 
       </div>
       
       <div className="p-2 sm:p-3 md:p-4 flex flex-col flex-grow relative z-10">
-        <h4 className="text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2 text-center text-ultraball-black">{pokemon.name}</h4>
+        <h4 className="text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2 text-center text-white">{pokemon.name}</h4>
         
         <div className="flex justify-center flex-wrap gap-1 mb-1 sm:mb-2 md:mb-3">
           {pokemon.types.map((type, index) => (
