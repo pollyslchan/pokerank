@@ -26,8 +26,8 @@ export default function RankingsSection() {
     <section id="rankings" className="mb-12">
       <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
         {/* Top Rankings */}
-        <div className="flex-1 ultraball-card p-3 sm:p-4 md:p-6">
-          <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6 text-ultraball-black">Top Rankings</h3>
+        <div className="flex-1 bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg p-3 sm:p-4 md:p-6">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6">Top Rankings</h3>
 
           {isLoadingRankings ? (
             <div className="flex justify-center items-center py-8 sm:py-10 md:py-16">
@@ -37,7 +37,7 @@ export default function RankingsSection() {
             <>
               <div className="overflow-x-auto rounded-lg -mx-3 sm:-mx-4 md:mx-0">
                 <table className="w-full text-left table-auto font-roboto text-xs sm:text-sm md:text-base">
-                  <thead className="bg-ultraball-black text-ultraball-gold">
+                  <thead className="bg-gradient-to-r from-pokemon-blue to-blue-600 text-white">
                     <tr>
                       <th className="px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-tl-lg">#</th>
                       <th className="px-2 sm:px-3 md:px-4 py-1.5 sm:py-2">Pokémon</th>
@@ -72,7 +72,7 @@ export default function RankingsSection() {
 
               <div className="mt-4 sm:mt-6 text-center">
                 <Link href="/rankings">
-                  <Button className="px-4 sm:px-6 py-1.5 sm:py-2 bg-ultraball-black hover:bg-ultraball-black/80 text-ultraball-gold font-semibold rounded-lg transition text-sm sm:text-base shadow-lg border-2 border-ultraball-gold">
+                  <Button className="px-4 sm:px-6 py-1.5 sm:py-2 bg-pokemon-blue hover:bg-blue-700 text-white font-semibold rounded-lg transition text-sm sm:text-base shadow-lg border-2 border-transparent hover:border-white">
                     View Full Rankings
                   </Button>
                 </Link>
@@ -86,8 +86,8 @@ export default function RankingsSection() {
         </div>
 
         {/* Recent Votes */}
-        <div className="flex-1 ultraball-card p-3 sm:p-4 md:p-6" id="history">
-          <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6 text-ultraball-black">Recent Votes</h3>
+        <div className="flex-1 bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg p-3 sm:p-4 md:p-6">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6" id="history">Recent Votes</h3>
 
           {isLoadingVotes ? (
             <div className="flex justify-center items-center py-8 sm:py-10 md:py-16">
