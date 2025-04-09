@@ -1,5 +1,8 @@
+import { useState, useEffect } from "react";
 import { Pokemon } from "@shared/schema";
 import { Button } from "@/components/ui/button";
+import { motion, useAnimation, useMotionValue, useTransform, PanInfo } from "framer-motion";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface PokemonCardProps {
   pokemon: Pokemon & { rank?: number };
@@ -31,19 +34,111 @@ const typeColors: Record<string, string> = {
 };
 
 export default function PokemonCard({ pokemon, onVote, isLoading, voteStatus }: PokemonCardProps) {
+  const isMobile = useIsMobile();
+  const controls = useAnimation();
+  const x = useMotionValue(0);
+  const rotate = useTransform(x, [-200, 200], [-15, 15]);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  
   const handleVote = () => {
     if (!isLoading && voteStatus === "idle") {
       onVote(pokemon.id);
+      
+      // Animate card on vote
+      controls.start({
+        scale: [1, 1.05, 1],
+        transition: { duration: 0.3 }
+      });
     }
+  };
+  
+  const handleDragStart = (_: any, info: PanInfo) => {
+    setStartX(info.point.x);
+    setIsDragging(true);
+  };
+  
+  const handleDragEnd = (_: any, info: PanInfo) => {
+    setIsDragging(false);
+    
+    if (voteStatus !== "idle" || isLoading) return;
+    
+    const swipeThreshold = 100;
+    const swipeDistance = info.offset.x;
+    
+    if (Math.abs(swipeDistance) > swipeThreshold) {
+      // User swiped far enough to count as a vote
+      onVote(pokemon.id);
+      
+      // Animate card flying off screen
+      controls.start({
+        x: swipeDistance > 0 ? 500 : -500,
+        opacity: 0,
+        transition: { duration: 0.5 }
+      }).then(() => {
+        // Reset card position after animation
+        controls.start({ x: 0, opacity: 1, transition: { duration: 0 } });
+      });
+    } else {
+      // Reset position if not swiped enough
+      controls.start({
+        x: 0,
+        transition: { type: "spring", stiffness: 300, damping: 20 }
+      });
+    }
+  };
+  
+  const handleClick = (e: React.MouseEvent) => {
+    // Only register click if it's not after a drag
+    if (!isDragging && voteStatus === "idle" && !isLoading) {
+      handleVote();
+    }
+  };
+  
+  // Effect to reset the card position when getting a new Pokemon
+  useEffect(() => {
+    controls.start({ x: 0, opacity: 1 });
+  }, [pokemon.id, controls]);
+  
+  // Get visual feedback for swipe direction
+  const getSwipeIndicator = () => {
+    const currentX = x.get();
+    
+    if (Math.abs(currentX) < 30) return null;
+    
+    const isRightSwipe = currentX > 0;
+    
+    return (
+      <div className={`absolute inset-0 z-40 flex items-center justify-center bg-opacity-50 rounded-xl
+        ${isRightSwipe ? 'bg-green-500' : 'bg-red-500'}`}>
+        <div className="bg-white px-4 py-2 rounded-full font-bold shadow-lg">
+          {isRightSwipe ? '👍 Vote!' : '👎 Skip'}
+        </div>
+      </div>
+    );
   };
 
   return (
-    <div className="pokemon-card ultraball-card flex-1 w-full max-w-xs flex flex-col hover-scale overflow-hidden">
+    <motion.div 
+      className="pokemon-card ultraball-card flex-1 w-full max-w-xs flex flex-col hover-scale overflow-hidden cursor-pointer touch-manipulation select-none"
+      animate={controls}
+      drag={voteStatus === "idle" && !isLoading ? "x" : false}
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.7}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onClick={handleClick}
+      style={{ x, rotate }}
+      whileTap={{ scale: 0.98 }}
+    >
+      {/* Swipe indicator overlay */}
+      {isDragging && getSwipeIndicator()}
+      
       <div className="relative z-10">
         <img 
           src={pokemon.imageUrl} 
           alt={pokemon.name} 
-          className="w-full h-36 sm:h-44 md:h-52 object-contain p-2 sm:p-4 transition-transform duration-300 hover:scale-110 animate-float z-10" 
+          className="w-full h-28 sm:h-36 md:h-44 object-contain p-2 sm:p-4 transition-transform duration-300 hover:scale-110 animate-float z-10" 
           onError={(e) => {
             // Fallback if image fails to load
             (e.target as HTMLImageElement).src = "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1200px-Pok%C3%A9_Ball_icon.svg.png";
@@ -68,24 +163,21 @@ export default function PokemonCard({ pokemon, onVote, isLoading, voteStatus }: 
           ))}
         </div>
         
-        <div className="text-center text-[10px] sm:text-xs md:text-sm text-gray-800 mb-1 sm:mb-2 md:mb-3 flex-grow bg-white/80 rounded-lg p-2 shadow-inner">
+        <div className="text-center text-[10px] sm:text-xs md:text-sm text-gray-800 mb-1 sm:mb-2 md:mb-3 flex-grow bg-white/80 rounded-lg p-1 sm:p-2 shadow-inner">
           <p>Current Rank: <span className="font-semibold">{pokemon.rank || 'N/A'}</span></p>
           <p>Rating: <span className="font-semibold">{pokemon.rating}</span></p>
           <p>Record: <span className="font-semibold">{pokemon.wins}-{pokemon.losses}</span></p>
         </div>
         
-        <Button
-          onClick={handleVote}
-          disabled={isLoading || voteStatus !== "idle"}
-          className={`ultraball-button w-full py-2 sm:py-3 md:py-4 font-bold ${
-            voteStatus === "voted" 
-              ? "bg-ultraball-yellow text-ultraball-black" 
-              : "bg-ultraball-black text-white hover:bg-ultraball-yellow hover:text-ultraball-black"
-          } text-xs sm:text-sm md:text-base transform hover:-translate-y-1 transition-all duration-300`}
+        <div className={`ultraball-button w-full py-2 sm:py-3 text-center font-bold rounded-full shadow-md
+          ${voteStatus === "voted" 
+            ? "bg-ultraball-yellow text-ultraball-black" 
+            : "bg-ultraball-black text-white"
+          } text-xs sm:text-sm transition-all duration-300`}
         >
           {isLoading ? (
             <>
-              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin inline-block mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
@@ -93,7 +185,7 @@ export default function PokemonCard({ pokemon, onVote, isLoading, voteStatus }: 
             </>
           ) : voteStatus === "voting" ? (
             <>
-              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg className="animate-spin inline-block mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
@@ -102,10 +194,13 @@ export default function PokemonCard({ pokemon, onVote, isLoading, voteStatus }: 
           ) : voteStatus === "voted" ? (
             "Vote Recorded!"
           ) : (
-            "Vote for This Pokémon"
+            <>
+              <span>{isMobile ? "Tap or Swipe" : "Click or Swipe"}</span>
+              {!isMobile && <span className="ml-1">to Vote</span>}
+            </>
           )}
-        </Button>
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
