@@ -31,14 +31,45 @@ const typeColors: Record<string, string> = {
 };
 
 export default function PokemonCard({ pokemon, onVote, isLoading, voteStatus }: PokemonCardProps) {
+  const [touchStart, setTouchStart] = React.useState(0);
+  const [touchEnd, setTouchEnd] = React.useState(0);
+
   const handleVote = () => {
     if (!isLoading && voteStatus === "idle") {
       onVote(pokemon.id);
     }
   };
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.touches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!isLoading && voteStatus === "idle") {
+      const swipeThreshold = 50;
+      const swipeDistance = touchStart - touchEnd;
+      
+      if (Math.abs(swipeDistance) > swipeThreshold) {
+        // Swipe left or right triggers vote
+        onVote(pokemon.id);
+      }
+    }
+    setTouchStart(0);
+    setTouchEnd(0);
+  };
+
   return (
-    <div className="pokemon-card ultraball-card flex-1 w-full max-w-xs flex flex-col hover-scale overflow-hidden">
+    <div 
+      className="pokemon-card ultraball-card flex-1 w-full max-w-xs flex flex-col hover-scale overflow-hidden cursor-pointer"
+      onClick={handleVote}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       <div className="relative z-10">
         <img 
           src={pokemon.imageUrl} 
@@ -75,13 +106,12 @@ export default function PokemonCard({ pokemon, onVote, isLoading, voteStatus }: 
         </div>
         
         <Button
-          onClick={handleVote}
           disabled={isLoading || voteStatus !== "idle"}
           className={`ultraball-button w-full py-2 sm:py-3 md:py-4 font-bold ${
             voteStatus === "voted" 
               ? "bg-ultraball-yellow text-ultraball-black" 
               : "bg-ultraball-black text-white hover:bg-ultraball-yellow hover:text-ultraball-black"
-          } text-xs sm:text-sm md:text-base transform hover:-translate-y-1 transition-all duration-300`}
+          } text-xs sm:text-sm md:text-base transform hover:-translate-y-1 transition-all duration-300 pointer-events-none`}
         >
           {isLoading ? (
             <>
