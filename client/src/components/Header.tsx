@@ -11,10 +11,10 @@ export default function Header() {
 
   // Create navigation items to avoid duplication
   const navItems = [
-    { href: "/#voting", label: "Vote" },
-    { href: "/#rankings", label: "Rankings" },
-    { href: "/#history", label: "History" },
-    { href: "/#about", label: "About" }
+    { href: "#voting", label: "Vote" },
+    { href: "#rankings", label: "Rankings" },
+    { href: "#stats", label: "Stats" },
+    { href: "#about", label: "About" }
   ];
 
   return (
@@ -36,13 +36,13 @@ export default function Header() {
         {/* Desktop navigation */}
         <nav className="hidden md:flex space-x-6">
           {navItems.map((item) => (
-            <Link 
+            <a 
               key={item.href} 
               href={item.href} 
-              className={`font-medium text-white hover:text-ultraball-yellow transition-colors duration-300 hover-scale px-3 py-1 ${location === item.href ? "text-ultraball-yellow border-b-2 border-ultraball-yellow" : ""}`}
+              className={`font-medium text-white hover:text-ultraball-yellow transition-colors duration-300 hover-scale px-3 py-1 ${location.includes(item.href) ? "text-ultraball-yellow border-b-2 border-ultraball-yellow" : ""}`}
             >
               {item.label}
-            </Link>
+            </a>
           ))}
         </nav>
         
@@ -74,14 +74,14 @@ export default function Header() {
       <div className={`${isMobileMenuOpen ? 'block' : 'hidden'} md:hidden bg-ultraball-black pb-4 border-b-4 border-ultraball-yellow`}>
         <div className="container mx-auto px-4 flex flex-col space-y-2">
           {navItems.map((item) => (
-            <Link
+            <a
               key={item.href}
               href={item.href}
               className="text-white hover:text-ultraball-yellow py-2 font-medium block transition-colors duration-300 hover-scale" 
               onClick={() => setIsMobileMenuOpen(false)}
             >
               {item.label}
-            </Link>
+            </a>
           ))}
         </div>
       </div>
