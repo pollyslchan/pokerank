@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 export default function VotingSection() {
   const { toast } = useToast();
   const [votedPokemonId, setVotedPokemonId] = useState<number | null>(null);
+  const [matchupPool, setMatchupPool] = useState<Array<{ pokemon1: Pokemon; pokemon2: Pokemon }>>([]);
+  const [preloadedCount, setPreloadedCount] = useState(0);
 
   // Fetch a random pair of Pokemon for voting
   const { 
@@ -22,10 +24,29 @@ export default function VotingSection() {
     staleTime: 0, // Always get fresh data
   });
   
-  // Prefetch the next matchup when component mounts
+  // Preload multiple matchups in the background
+  const preloadMatchups = async () => {
+    try {
+      // Prefetch up to 5 matchups
+      if (preloadedCount < 5) {
+        const res = await fetch('/api/matchup');
+        if (res.ok) {
+          const data = await res.json();
+          setMatchupPool(prev => [...prev, data]);
+          setPreloadedCount(prev => prev + 1);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to preload matchup:', error);
+    }
+  };
+  
+  // Prefetch matchups when component mounts
   useEffect(() => {
-    // Prefetch the next matchup to have it ready
-    queryClient.prefetchQuery({ queryKey: ['/api/matchup'] });
+    // Immediately prefetch several matchups when the component loads
+    for (let i = 0; i < 5; i++) {
+      preloadMatchups();
+    }
   }, []);
 
   // Handle vote submission
@@ -41,18 +62,28 @@ export default function VotingSection() {
         description: "Your vote has been recorded. New matchup loaded.",
       });
 
-      // Reset voted state and load a new matchup with minimal delay
-      // Prefetch the next matchup immediately
-      queryClient.prefetchQuery({ queryKey: ['/api/matchup'] });
+      // Reset the voted state immediately - no delay
+      setVotedPokemonId(null);
       
-      // Reset state and update queries after a very short delay
-      setTimeout(() => {
-        setVotedPokemonId(null);
-        queryClient.invalidateQueries({ queryKey: ['/api/matchup'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/rankings'] });
-        queryClient.invalidateQueries({ queryKey: ['/api/votes/recent'] });
-        // Don't invalidate stats here as it's a heavy query that can be updated less frequently
-      }, 300);
+      // Use preloaded matchup if available for instant loading
+      if (matchupPool.length > 0) {
+        // Get the next matchup from our pool
+        const nextMatchup = matchupPool[0];
+        // Update the query cache directly with the preloaded matchup
+        queryClient.setQueryData(['/api/matchup'], nextMatchup);
+        // Remove the used matchup from the pool
+        setMatchupPool(prev => prev.slice(1));
+        setPreloadedCount(prev => prev - 1);
+        // Immediately start preloading a new one to refill the pool
+        preloadMatchups();
+      } else {
+        // Fallback to fetching if pool is empty
+        queryClient.fetchQuery({ queryKey: ['/api/matchup'] });
+      }
+      
+      // Update other queries in the background
+      queryClient.invalidateQueries({ queryKey: ['/api/rankings'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/votes/recent'] });
     },
     onError: (error) => {
       // Show error toast
@@ -81,10 +112,21 @@ export default function VotingSection() {
 
   // Handle skip button click
   const handleSkip = () => {
-    // Prefetch the next matchup immediately to make it faster
-    queryClient.prefetchQuery({ queryKey: ['/api/matchup'] });
-    // Then load it
-    refetchMatchup();
+    // Use preloaded matchup if available for instant loading
+    if (matchupPool.length > 0) {
+      // Get the next matchup from our pool
+      const nextMatchup = matchupPool[0];
+      // Update the query cache directly with the preloaded matchup
+      queryClient.setQueryData(['/api/matchup'], nextMatchup);
+      // Remove the used matchup from the pool
+      setMatchupPool(prev => prev.slice(1));
+      setPreloadedCount(prev => prev - 1);
+      // Immediately start preloading a new one to refill the pool
+      preloadMatchups();
+    } else {
+      // Fallback to fetching if pool is empty
+      queryClient.fetchQuery({ queryKey: ['/api/matchup'] });
+    }
   };
 
   // Loading state
