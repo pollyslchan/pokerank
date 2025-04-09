@@ -34,16 +34,12 @@ export default function Header() {
         </div>
         
         {/* Desktop navigation */}
-        <nav className="hidden md:flex space-x-2">
+        <nav className="hidden md:flex space-x-6">
           {navItems.map((item) => (
             <Link 
               key={item.href} 
               href={item.href} 
-              className={`font-medium px-4 py-2 rounded-t-md transition-all duration-300 hover-scale ${
-                location === item.href || (location === '/' && item.href === '/#voting') 
-                  ? "text-ultraball-black bg-ultraball-yellow font-bold" 
-                  : "text-white hover:text-ultraball-yellow"
-              }`}
+              className={`font-medium text-white hover:text-ultraball-yellow transition-colors duration-300 hover-scale px-3 py-1 ${location === item.href ? "text-ultraball-yellow border-b-2 border-ultraball-yellow" : ""}`}
             >
               {item.label}
             </Link>
@@ -76,16 +72,12 @@ export default function Header() {
       
       {/* Mobile menu */}
       <div className={`${isMobileMenuOpen ? 'block' : 'hidden'} md:hidden bg-ultraball-black pb-4 border-b-4 border-ultraball-yellow`}>
-        <div className="container mx-auto px-4 flex flex-col space-y-2 py-2">
+        <div className="container mx-auto px-4 flex flex-col space-y-2">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={`py-3 px-4 font-medium block rounded-md transition-all duration-300 
-                ${location === item.href || (location === '/' && item.href === '/#voting')
-                  ? "bg-ultraball-yellow text-ultraball-black font-bold" 
-                  : "text-white hover:bg-ultraball-black hover:text-ultraball-yellow border border-ultraball-yellow"
-                }`}
+              className="text-white hover:text-ultraball-yellow py-2 font-medium block transition-colors duration-300 hover-scale" 
               onClick={() => setIsMobileMenuOpen(false)}
             >
               {item.label}

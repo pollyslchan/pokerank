@@ -149,33 +149,17 @@
   background-color: var(--ultraball-black);
   color: white;
   font-weight: 600;
-  border-radius: 9999px;
+  border-radius: 50px;
   overflow: hidden;
   transition: all 0.3s ease;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1.25rem;
-  font-size: 0.875rem;
 }
 
-.ultraball-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.ultraball-button:hover:not(:disabled) {
+.ultraball-button:hover {
   background-color: var(--ultraball-yellow);
   color: var(--ultraball-black);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-}
-
-.ultraball-button:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .ultraball-divider {
