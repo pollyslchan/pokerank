@@ -86,8 +86,8 @@ export default function RankingsSection() {
         </div>
 
         {/* Recent Votes */}
-        <div className="flex-1 bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg p-3 sm:p-4 md:p-6">
-          <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6" id="history">Recent Votes</h3>
+        <div id="history" className="flex-1 bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg p-3 sm:p-4 md:p-6">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6">Recent Votes</h3>
 
           {isLoadingVotes ? (
             <div className="flex justify-center items-center py-8 sm:py-10 md:py-16">
