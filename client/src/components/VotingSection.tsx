@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Pokemon } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 export default function VotingSection() {
   const { toast } = useToast();
   const [votedPokemonId, setVotedPokemonId] = useState<number | null>(null);
+  const [isLoadingNewMatchup, setIsLoadingNewMatchup] = useState<boolean>(false);
 
   // Fetch a random pair of Pokemon for voting
   const { 
@@ -33,6 +34,9 @@ export default function VotingSection() {
         title: "Vote recorded!",
         description: "Your vote has been recorded. New matchup loaded.",
       });
+
+      // Set loading state for new Pokemon
+      setIsLoadingNewMatchup(true);
 
       // Reset voted state and load a new matchup after a short delay
       setTimeout(() => {
@@ -99,6 +103,13 @@ export default function VotingSection() {
     );
   }
 
+  // Reset loading state when new matchup data arrives
+  useEffect(() => {
+    if (matchup && isLoadingNewMatchup) {
+      setIsLoadingNewMatchup(false);
+    }
+  }, [matchup, isLoadingNewMatchup]);
+
   // Get vote status for each Pokemon
   const getPokemonVoteStatus = (pokemonId: number) => {
     if (voteMutation.isPending && votedPokemonId === pokemonId) {
@@ -119,7 +130,7 @@ export default function VotingSection() {
           </span>
         </h3>
 
-        {isLoadingMatchup ? (
+        {isLoadingMatchup || isLoadingNewMatchup ? (
           <div className="min-h-[300px] flex items-center justify-center">
             <div className="text-center">
               <div className="w-16 h-16 border-4 border-ultraball-yellow border-t-ultraball-black rounded-full animate-spin mx-auto mb-4"></div>

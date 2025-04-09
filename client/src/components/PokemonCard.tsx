@@ -129,6 +129,7 @@ export default function PokemonCard({ pokemon, onVote, isLoading, voteStatus }: 
       onDragEnd={handleDragEnd}
       onClick={handleClick}
       style={{ x, rotate }}
+      whileHover={{ scale: 1.03, y: -5 }}
       whileTap={{ scale: 0.98 }}
     >
       {/* Swipe indicator overlay */}
