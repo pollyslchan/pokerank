@@ -134,7 +134,7 @@ export default function PokemonCard({ pokemon, onVote, isLoading, voteStatus }: 
       {/* Swipe indicator overlay */}
       {isDragging && getSwipeIndicator()}
       
-      <div className="relative z-10">
+      <div className="relative z-10 bg-ultraball-black pb-2">
         <img 
           src={pokemon.imageUrl} 
           alt={pokemon.name} 
@@ -149,8 +149,8 @@ export default function PokemonCard({ pokemon, onVote, isLoading, voteStatus }: 
         </span>
       </div>
       
-      <div className="p-2 sm:p-3 md:p-4 flex flex-col flex-grow relative z-10">
-        <h4 className="text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2 text-center text-white">{pokemon.name}</h4>
+      <div className="px-3 py-2 sm:p-3 md:p-4 flex flex-col flex-grow relative z-10 bg-ultraball-black">
+        <h4 className="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3 text-center text-white px-1">{pokemon.name}</h4>
         
         <div className="flex justify-center flex-wrap gap-1 mb-1 sm:mb-2 md:mb-3">
           {pokemon.types.map((type, index) => (
