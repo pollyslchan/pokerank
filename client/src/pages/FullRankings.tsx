@@ -48,15 +48,15 @@ export default function FullRankings() {
       <div className="flex justify-between items-center mb-8">
         <h2 className="text-3xl font-bold">Full Rankings</h2>
         <Link href="/">
-          <Button variant="outline" className="border-pokemon-red text-pokemon-red hover:bg-pokemon-red hover:text-white">
+          <Button variant="outline" className="border-ultraball-gold text-ultraball-black hover:bg-ultraball-black hover:text-ultraball-gold">
             Back to Home
           </Button>
         </Link>
       </div>
 
-      <div className="bg-white rounded-xl shadow-lg p-6">
+      <div className="ultraball-card p-6">
         <div className="flex flex-col md:flex-row justify-between items-center mb-6">
-          <h3 className="text-2xl font-bold mb-4 md:mb-0">All Pokémon Rankings</h3>
+          <h3 className="text-2xl font-bold mb-4 md:mb-0 text-ultraball-black">All Pokémon Rankings</h3>
           <div className="w-full md:w-1/3">
             <Input
               type="text"
@@ -77,7 +77,7 @@ export default function FullRankings() {
             <div className="overflow-x-auto">
               <table className="w-full text-left table-auto font-roboto text-sm">
                 <thead>
-                  <tr className="bg-gradient-to-r from-pokemon-blue to-blue-600 text-white">
+                  <tr className="bg-ultraball-black text-ultraball-gold">
                     <th className="px-4 py-2 rounded-tl-lg">Rank</th>
                     <th className="px-4 py-2">#</th>
                     <th className="px-4 py-2">Pokémon</th>
@@ -136,13 +136,14 @@ export default function FullRankings() {
                     size="sm"
                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
+                    className="border-ultraball-gold text-ultraball-black hover:bg-ultraball-black hover:text-ultraball-gold"
                   >
                     Previous
                   </Button>
                   
                   <div className="flex items-center px-2">
                     {/* Simple page number display */}
-                    <span>Page {currentPage} of {totalPages}</span>
+                    <span className="text-ultraball-black">Page {currentPage} of {totalPages}</span>
                   </div>
                   
                   <Button
@@ -150,6 +151,7 @@ export default function FullRankings() {
                     size="sm"
                     onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}
+                    className="border-ultraball-gold text-ultraball-black hover:bg-ultraball-black hover:text-ultraball-gold"
                   >
                     Next
                   </Button>
@@ -163,7 +165,7 @@ export default function FullRankings() {
             <Button 
               onClick={() => setSearchTerm("")}
               variant="outline"
-              className="border-pokemon-blue text-pokemon-blue hover:bg-pokemon-blue hover:text-white"
+              className="border-ultraball-gold text-ultraball-black hover:bg-ultraball-black hover:text-ultraball-gold"
             >
               Clear Search
             </Button>
